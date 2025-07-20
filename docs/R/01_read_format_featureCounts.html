@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Shane Hogle">
+<meta name="dcterms.date" content="2025-07-20">
+
+<title>Read and format featureCounts results – RNAseq bacteria-nematode interactions</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-1f23bf93a17969024013c136d185e5ce.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+</head>
+
+<body class="nav-sidebar docked">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../R/01_read_format_featureCounts.html">i) Formatting RNAseq counts</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">RNAseq bacteria-nematode interactions</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../R/01_read_format_featureCounts.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">i) Formatting RNAseq counts</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../R/02_dge_function.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ii) Analysis and plotting</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#setup" id="toc-setup" class="nav-link active" data-scroll-target="#setup"><span class="header-section-number">1</span> Setup</a>
+  <ul class="collapse">
+  <li><a href="#libraries" id="toc-libraries" class="nav-link" data-scroll-target="#libraries"><span class="header-section-number">1.1</span> Libraries</a></li>
+  <li><a href="#global-variables" id="toc-global-variables" class="nav-link" data-scroll-target="#global-variables"><span class="header-section-number">1.2</span> Global variables</a></li>
+  </ul></li>
+  <li><a href="#read-data" id="toc-read-data" class="nav-link" data-scroll-target="#read-data"><span class="header-section-number">2</span> Read data</a></li>
+  <li><a href="#formatting" id="toc-formatting" class="nav-link" data-scroll-target="#formatting"><span class="header-section-number">3</span> Formatting</a>
+  <ul class="collapse">
+  <li><a href="#remove-rrnas" id="toc-remove-rrnas" class="nav-link" data-scroll-target="#remove-rrnas"><span class="header-section-number">3.1</span> Remove rRNAs</a></li>
+  <li><a href="#pivot-to-wide-format" id="toc-pivot-to-wide-format" class="nav-link" data-scroll-target="#pivot-to-wide-format"><span class="header-section-number">3.2</span> Pivot to wide format</a></li>
+  </ul></li>
+  <li><a href="#sample-clustering" id="toc-sample-clustering" class="nav-link" data-scroll-target="#sample-clustering"><span class="header-section-number">4</span> Sample clustering</a>
+  <ul class="collapse">
+  <li><a href="#cpm" id="toc-cpm" class="nav-link" data-scroll-target="#cpm"><span class="header-section-number">4.1</span> CPM</a></li>
+  </ul></li>
+  <li><a href="#differential-gene-expression" id="toc-differential-gene-expression" class="nav-link" data-scroll-target="#differential-gene-expression"><span class="header-section-number">5</span> Differential Gene expression</a>
+  <ul class="collapse">
+  <li><a href="#contrasts" id="toc-contrasts" class="nav-link" data-scroll-target="#contrasts"><span class="header-section-number">5.1</span> Contrasts</a></li>
+  <li><a href="#combine-dge-and-export" id="toc-combine-dge-and-export" class="nav-link" data-scroll-target="#combine-dge-and-export"><span class="header-section-number">5.2</span> Combine DGE and export</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Read and format featureCounts results</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Shane Hogle </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 20, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="setup" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Setup</h1>
+<section id="libraries" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="libraries"><span class="header-section-number">1.1</span> Libraries</h2>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">library</span>(fs)</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="fu">library</span>(edgeR)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="global-variables" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="global-variables"><span class="header-section-number">1.2</span> Global variables</h2>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>data_raw <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"_data_raw"</span>, <span class="st">"featureCounts"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="read-data" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Read data</h1>
+<p>There are three samples (ZDB[1-3]) from a higher trophic level worm <em>Pristionchus quartusdecimus</em> which were sequenced but not included in this paper/analysis. We will not read these files for our analysis</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>samppaths <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">dir_ls</span>(data_raw, <span class="at">regexp =</span> <span class="st">"*.tsv$"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="co"># here we exclude the ZDB samples </span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>samppaths <span class="ot">&lt;-</span> samppaths[<span class="fu">str_detect</span>(samppaths, <span class="st">"ZDB</span><span class="sc">\\</span><span class="st">d+.tsv$"</span>, <span class="at">negate=</span><span class="cn">TRUE</span>)]</span>
+<span id="cb3-4"><a href="#cb3-4"></a>sampnames <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">path_split</span>(samppaths) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-5"><a href="#cb3-5"></a>  purrr<span class="sc">::</span><span class="fu">map_chr</span>(dplyr<span class="sc">::</span>last) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-6"><a href="#cb3-6"></a>  <span class="fu">str_remove</span>(<span class="st">".tsv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Vectorized read in the <code>featureCounts</code> files</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>countabs <span class="ot">&lt;-</span> samppaths <span class="sc">%&gt;%</span> </span>
+<span id="cb4-2"><a href="#cb4-2"></a>  purrr<span class="sc">::</span><span class="fu">set_names</span>(sampnames) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-3"><a href="#cb4-3"></a>  purrr<span class="sc">::</span><span class="fu">map</span>(</span>
+<span id="cb4-4"><a href="#cb4-4"></a>  readr<span class="sc">::</span>read_tsv,</span>
+<span id="cb4-5"><a href="#cb4-5"></a>  <span class="at">skip =</span> <span class="dv">2</span>,</span>
+<span id="cb4-6"><a href="#cb4-6"></a>  <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">"gene"</span>,<span class="st">"chromosome"</span>, <span class="st">"start"</span>, <span class="st">"end"</span>, <span class="st">"strand"</span>, <span class="st">"length"</span>, <span class="st">"count"</span>),</span>
+<span id="cb4-7"><a href="#cb4-7"></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-8"><a href="#cb4-8"></a>  purrr<span class="sc">::</span><span class="fu">list_rbind</span>(<span class="at">names_to =</span> <span class="st">"sample"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="formatting" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Formatting</h1>
+<section id="remove-rrnas" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="remove-rrnas"><span class="header-section-number">3.1</span> Remove rRNAs</h2>
+<p>Generally we don’t care about rRNAs and only mRNAs which code for functions. We will filter out any residual rRNA genes that were not detected in our bioinformatics filtering step.</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>rrna <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"_data_raw"</span>, <span class="st">"rrna_nanjingSynCom122.tsv"</span>),</span>
+<span id="cb5-2"><a href="#cb5-2"></a>                 <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">"gene"</span>, <span class="st">"feature"</span>, <span class="st">"length"</span>, <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"description"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 2260 Columns: 7
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: "\t"
+chr (3): gene, feature, description
+dbl (1): length
+lgl (3): a, b, c
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>countabs_no_rRNA <span class="ot">&lt;-</span> <span class="fu">anti_join</span>(countabs, dplyr<span class="sc">::</span><span class="fu">select</span>(rrna, gene), <span class="at">by =</span> <span class="fu">join_by</span>(gene))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="pivot-to-wide-format" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="pivot-to-wide-format"><span class="header-section-number">3.2</span> Pivot to wide format</h2>
+<p>Key to do this properly is to perform the normalization for each species separately and not one big dataframe of all species combined. After normalization and differential testing the results are combined. This should help remove effects due to species abundance shifts so that we are focusing mostly on expression shifts.</p>
+<p>Note that ZDCK = SC, ZDCE = SC_N1, ZDP = SC_N2, and ZDD = SC_N3</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>countabs_nested <span class="ot">&lt;-</span> countabs_no_rRNA <span class="sc">%&gt;%</span> </span>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> <span class="st">"sample"</span>, <span class="at">values_from =</span> <span class="st">"count"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-3"><a href="#cb8-3"></a>  <span class="co"># reordering columns to make group specification easier later for DGElist</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a>  dplyr<span class="sc">::</span><span class="fu">relocate</span>(<span class="fu">c</span>(ZDCK1, ZDCK2, ZDCK3), <span class="at">.after =</span> length) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-5"><a href="#cb8-5"></a>  dplyr<span class="sc">::</span><span class="fu">relocate</span>(<span class="fu">c</span>(ZDP1, ZDP2, ZDP3), <span class="at">.after =</span> ZDCE3) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-6"><a href="#cb8-6"></a>  <span class="co"># creating a strainID variable and nesting by it</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a>  <span class="fu">mutate</span>(<span class="at">strainID=</span><span class="fu">str_remove</span>(chromosome, <span class="st">"</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">d+$"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-8"><a href="#cb8-8"></a>  <span class="fu">nest</span>(<span class="at">.by =</span> strainID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Create edgeR DGElist objects for each species while filtering out genes with any cpm &lt; 0.5 and genes with sum across all samples &lt;= 2</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">set.seed</span>(<span class="dv">23467</span>)</span>
+<span id="cb9-2"><a href="#cb9-2"></a></span>
+<span id="cb9-3"><a href="#cb9-3"></a>treatment_grouping <span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">"SC"</span>, <span class="st">"SC"</span>, <span class="st">"SC"</span>, <span class="st">"SC_N1"</span>, <span class="st">"SC_N1"</span>, <span class="st">"SC_N1"</span>, <span class="st">"SC_N2"</span>, <span class="st">"SC_N2"</span>, <span class="st">"SC_N2"</span>, <span class="st">"SC_N3"</span>, <span class="st">"SC_N3"</span>, <span class="st">"SC_N3"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4"></a></span>
+<span id="cb9-5"><a href="#cb9-5"></a>countabs_nested_filt <span class="ot">&lt;-</span> countabs_nested <span class="sc">%&gt;%</span> </span>
+<span id="cb9-6"><a href="#cb9-6"></a>  <span class="co"># create the DGEList object</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a>  <span class="fu">mutate</span>(<span class="at">dgelist =</span> <span class="fu">map</span>(data, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">DGEList</span>(<span class="at">counts=</span>.x[,<span class="dv">7</span><span class="sc">:</span><span class="dv">18</span>], <span class="at">genes=</span>.x[,<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>], </span>
+<span id="cb9-8"><a href="#cb9-8"></a>                       <span class="co"># this grouping puts columns 1-3 (SC1-3) as the intercept in the later GLM</span></span>
+<span id="cb9-9"><a href="#cb9-9"></a>                       <span class="at">group =</span> treatment_grouping))) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-10"><a href="#cb9-10"></a>  <span class="co"># filter out low expressed genes.</span></span>
+<span id="cb9-11"><a href="#cb9-11"></a>  <span class="fu">mutate</span>(<span class="at">keepme =</span> <span class="fu">map</span>(dgelist, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">filterByExpr</span>(.x))) <span class="sc">%&gt;%</span></span>
+<span id="cb9-12"><a href="#cb9-12"></a>  <span class="co"># subset DGElist to high expression genes</span></span>
+<span id="cb9-13"><a href="#cb9-13"></a>  <span class="fu">mutate</span>(<span class="at">dgelist_filt =</span> <span class="fu">map2</span>(dgelist, keepme, <span class="sc">~</span>.x[.y, , <span class="at">keep.lib.sizes=</span><span class="cn">FALSE</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="sample-clustering" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Sample clustering</h1>
+<p>In section 2.17 of the edgeR manual it states:</p>
+<blockquote class="blockquote">
+<p>The function plotMDS draws a multi-dimensional scaling plot of the RNA samples in which distances correspond to leading log-fold-changes between each pair of RNA samples. The leading log-fold-change is the average (root-mean-square) of the largest absolute log-fold changes between each pair of samples. This plot can be viewed as a type of unsupervised clustering. The function also provides the option of computing distances in terms of BCV between each pair of samples instead of leading logFC.</p>
+<p>Inputing RNA-seq counts to clustering or heatmap routines designed for microarray data is not straight-forward, and the best way to do this is still a matter of research. To draw a heatmap of individual RNA-seq samples, we suggest using moderated log-counts-per-million. This can be calculated by cpm with positive values for prior.count, for example <code>logcpm &lt;- cpm(y, log=TRUE)</code> where y is the normalized DGEList object. This produces a matrix of log2 counts-per-million (logCPM), with undefined values avoided and the poorly defined log-fold-changes for low counts shrunk towards zero. Larger values for prior.count produce stronger moderation of the values for low counts and more shrinkage of the corresponding log-fold-changes. The logCPM values can optionally be converted to RPKM or FPKM by subtracting log2 of gene length, see rpkm().</p>
+</blockquote>
+<section id="cpm" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="cpm"><span class="header-section-number">4.1</span> CPM</h2>
+<p>To get output needed for clustering we will grab <code>cpm</code> values from the TMM normalized dataset</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="fu">set.seed</span>(<span class="dv">42378</span>)</span>
+<span id="cb10-2"><a href="#cb10-2"></a>countabs_nested_filt_cpm <span class="ot">&lt;-</span> countabs_nested_filt <span class="sc">%&gt;%</span> </span>
+<span id="cb10-3"><a href="#cb10-3"></a>  <span class="co"># calculate TMM normalization factors</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">mutate</span>(<span class="at">normfact =</span> <span class="fu">map</span>(dgelist_filt, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">calcNormFactors</span>(.x))) <span class="sc">%&gt;%</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a>  <span class="co"># get the normalized counts on log2 scale</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a>  <span class="fu">mutate</span>(<span class="at">cpms =</span> <span class="fu">map</span>(normfact, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">cpm</span>(.x, <span class="at">log=</span><span class="cn">TRUE</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Some formatting to produce gene by sample matrix</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>cpm_combined <span class="ot">&lt;-</span> countabs_nested_filt_cpm <span class="sc">%&gt;%</span> </span>
+<span id="cb11-2"><a href="#cb11-2"></a>  <span class="fu">mutate</span>(<span class="at">df =</span> <span class="fu">map2</span>(normfact, cpms, <span class="sc">~</span><span class="fu">as.data.frame</span>(<span class="fu">cbind</span>(<span class="at">gene=</span>.x<span class="sc">$</span>genes<span class="sc">$</span>gene, .y)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-3"><a href="#cb11-3"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(strainID, df) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-4"><a href="#cb11-4"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(df))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><del>Another way to do this would be to maybe catch the output form the plotMDS function from <code>limma</code></del></p>
+<p>Never mind it doesn’t give the loadings which is what we’d need</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>countabs_nested_filt_mds <span class="ot">&lt;-</span> countabs_nested_filt_cpm <span class="sc">%&gt;%</span> </span>
+<span id="cb12-2"><a href="#cb12-2"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">10</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-3"><a href="#cb12-3"></a>  <span class="co"># get the normalized counts</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a>  <span class="fu">mutate</span>(<span class="at">mds =</span> <span class="fu">map</span>(normfact, <span class="sc">~</span>limma<span class="sc">::</span><span class="fu">plotMDS</span>(.x, <span class="at">plot =</span> <span class="cn">FALSE</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>write for later</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>cpm_combined <span class="sc">%&gt;%</span> </span>
+<span id="cb13-2"><a href="#cb13-2"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>strainID) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-3"><a href="#cb13-3"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(<span class="sc">-</span>gene), as.numeric)) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-4"><a href="#cb13-4"></a>  <span class="fu">write_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"genes_cpm.tsv.xz"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="differential-gene-expression" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Differential Gene expression</h1>
+<p>see page 34 of edgeR manual for example of specifying model matrix</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="co">#this generates a design matrix where treatments correspond to the different worms (or control)</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>samps <span class="ot">&lt;-</span> countabs_nested_filt[[<span class="dv">5</span>]][[<span class="dv">1</span>]]<span class="sc">$</span>samples</span>
+<span id="cb14-3"><a href="#cb14-3"></a>design <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span><span class="dv">0</span><span class="sc">+</span>treatment_grouping, <span class="at">data=</span>samps)</span>
+<span id="cb14-4"><a href="#cb14-4"></a><span class="fu">colnames</span>(design) <span class="ot">&lt;-</span> <span class="fu">levels</span>(samps<span class="sc">$</span>group)</span>
+<span id="cb14-5"><a href="#cb14-5"></a>design</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>      SC SC_N1 SC_N2 SC_N3
+ZDCK1  1     0     0     0
+ZDCK2  1     0     0     0
+ZDCK3  1     0     0     0
+ZDCE1  0     1     0     0
+ZDCE2  0     1     0     0
+ZDCE3  0     1     0     0
+ZDP1   0     0     1     0
+ZDP2   0     0     1     0
+ZDP3   0     0     1     0
+ZDD1   0     0     0     1
+ZDD2   0     0     0     1
+ZDD3   0     0     0     1
+attr(,"assign")
+[1] 1 1 1 1
+attr(,"contrasts")
+attr(,"contrasts")$treatment_grouping
+[1] "contr.treatment"</code></pre>
+</div>
+</div>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">set.seed</span>(<span class="dv">42378</span>)</span>
+<span id="cb16-2"><a href="#cb16-2"></a></span>
+<span id="cb16-3"><a href="#cb16-3"></a>countabs_nested_filt_fit <span class="ot">&lt;-</span> countabs_nested <span class="sc">%&gt;%</span> </span>
+<span id="cb16-4"><a href="#cb16-4"></a>  <span class="co"># create the DGEList object</span></span>
+<span id="cb16-5"><a href="#cb16-5"></a>  <span class="fu">mutate</span>(<span class="at">dgelist =</span> <span class="fu">map</span>(data, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">DGEList</span>(<span class="at">counts=</span>.x[,<span class="dv">7</span><span class="sc">:</span><span class="dv">18</span>], <span class="at">genes=</span>.x[,<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>], </span>
+<span id="cb16-6"><a href="#cb16-6"></a>                       <span class="co"># this grouping puts columns 1-3 (SC1-3) as the intercept in the later GLM</span></span>
+<span id="cb16-7"><a href="#cb16-7"></a>                       <span class="at">group =</span> treatment_grouping))) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-8"><a href="#cb16-8"></a>  <span class="co"># filter out low expressed genes.</span></span>
+<span id="cb16-9"><a href="#cb16-9"></a>  <span class="fu">mutate</span>(<span class="at">keepme =</span> <span class="fu">map</span>(dgelist, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">filterByExpr</span>(.x))) <span class="sc">%&gt;%</span></span>
+<span id="cb16-10"><a href="#cb16-10"></a>  <span class="co"># subset DGElist to high enough expressed genes</span></span>
+<span id="cb16-11"><a href="#cb16-11"></a>  <span class="fu">mutate</span>(<span class="at">dgelist_filt =</span> <span class="fu">map2</span>(dgelist, keepme, <span class="sc">~</span>.x[.y, , <span class="at">keep.lib.sizes=</span><span class="cn">FALSE</span>])) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-12"><a href="#cb16-12"></a>  <span class="co"># calculate TMM normalization factors</span></span>
+<span id="cb16-13"><a href="#cb16-13"></a>  <span class="fu">mutate</span>(<span class="at">normfact =</span> <span class="fu">map</span>(dgelist_filt, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">normLibSizes</span>(.x))) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-14"><a href="#cb16-14"></a>  <span class="co"># fit glms with design specified above</span></span>
+<span id="cb16-15"><a href="#cb16-15"></a>  <span class="fu">mutate</span>(<span class="at">fit =</span> <span class="fu">map</span>(dgelist_filt, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">glmQLFit</span>(.x, design)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="contrasts" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="contrasts"><span class="header-section-number">5.1</span> Contrasts</h2>
+<p>SC_N1 vs SC</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="fu">set.seed</span>(<span class="dv">42378</span>)</span>
+<span id="cb17-2"><a href="#cb17-2"></a></span>
+<span id="cb17-3"><a href="#cb17-3"></a>countabs_nested_filt_fit_ctrst01 <span class="ot">&lt;-</span> countabs_nested_filt_fit <span class="sc">%&gt;%</span> </span>
+<span id="cb17-4"><a href="#cb17-4"></a>  <span class="co"># this contrast compares the SC_N1 treatment to control</span></span>
+<span id="cb17-5"><a href="#cb17-5"></a>  <span class="fu">mutate</span>(<span class="at">SCvSC_N1 =</span> <span class="fu">map</span>(fit, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">glmQLFTest</span>(.x, <span class="at">contrast =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-6"><a href="#cb17-6"></a>  <span class="co"># this gets all genes with a FDR controlled p.value &lt; 0.05</span></span>
+<span id="cb17-7"><a href="#cb17-7"></a>  <span class="fu">mutate</span>(<span class="at">topdge =</span> <span class="fu">map</span>(SCvSC_N1, <span class="sc">~</span><span class="fu">data.frame</span>(edgeR<span class="sc">::</span><span class="fu">topTags</span>(.x, <span class="at">n =</span> <span class="cn">Inf</span>, <span class="at">p.value =</span> <span class="fl">0.05</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-8"><a href="#cb17-8"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(strainID, topdge) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-9"><a href="#cb17-9"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(topdge)) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-10"><a href="#cb17-10"></a>  <span class="co"># now filter by excluding genes with abs(logFC) &lt; 2</span></span>
+<span id="cb17-11"><a href="#cb17-11"></a>  <span class="fu">filter</span>(<span class="fu">abs</span>(logFC) <span class="sc">&gt;</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-12"><a href="#cb17-12"></a>  <span class="fu">mutate</span>(<span class="at">comparison =</span> <span class="st">"SCN1_versus_SC"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>SC_N2 vs SC</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="fu">set.seed</span>(<span class="dv">42378</span>)</span>
+<span id="cb18-2"><a href="#cb18-2"></a></span>
+<span id="cb18-3"><a href="#cb18-3"></a>countabs_nested_filt_fit_ctrst02 <span class="ot">&lt;-</span> countabs_nested_filt_fit <span class="sc">%&gt;%</span> </span>
+<span id="cb18-4"><a href="#cb18-4"></a>  <span class="co"># this contrast compares the SC_N1 treatment to control</span></span>
+<span id="cb18-5"><a href="#cb18-5"></a>  <span class="fu">mutate</span>(<span class="at">SCvSC_N1 =</span> <span class="fu">map</span>(fit, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">glmQLFTest</span>(.x, <span class="at">contrast =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-6"><a href="#cb18-6"></a>  <span class="co"># this gets all genes with a FDR controlled p.value &lt; 0.05</span></span>
+<span id="cb18-7"><a href="#cb18-7"></a>  <span class="fu">mutate</span>(<span class="at">topdge =</span> <span class="fu">map</span>(SCvSC_N1, <span class="sc">~</span><span class="fu">data.frame</span>(edgeR<span class="sc">::</span><span class="fu">topTags</span>(.x, <span class="at">n =</span> <span class="cn">Inf</span>, <span class="at">p.value =</span> <span class="fl">0.05</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-8"><a href="#cb18-8"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(strainID, topdge) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-9"><a href="#cb18-9"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(topdge)) <span class="sc">%&gt;%</span></span>
+<span id="cb18-10"><a href="#cb18-10"></a>  <span class="co"># now filter by excluding genes with abs(logFC) &lt; 2</span></span>
+<span id="cb18-11"><a href="#cb18-11"></a>  <span class="fu">filter</span>(<span class="fu">abs</span>(logFC) <span class="sc">&gt;</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-12"><a href="#cb18-12"></a>  <span class="fu">mutate</span>(<span class="at">comparison =</span> <span class="st">"SCN2_versus_SC"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>SC_N3 vs SC</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="fu">set.seed</span>(<span class="dv">42378</span>)</span>
+<span id="cb19-2"><a href="#cb19-2"></a></span>
+<span id="cb19-3"><a href="#cb19-3"></a>countabs_nested_filt_fit_ctrst03 <span class="ot">&lt;-</span> countabs_nested_filt_fit <span class="sc">%&gt;%</span> </span>
+<span id="cb19-4"><a href="#cb19-4"></a>  <span class="co"># this contrast compares the SC_N1 treatment to control</span></span>
+<span id="cb19-5"><a href="#cb19-5"></a>  <span class="fu">mutate</span>(<span class="at">SCvSC_N1 =</span> <span class="fu">map</span>(fit, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">glmQLFTest</span>(.x, <span class="at">contrast =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-6"><a href="#cb19-6"></a>  <span class="co"># this gets all genes with a FDR controlled p.value &lt; 0.05</span></span>
+<span id="cb19-7"><a href="#cb19-7"></a>  <span class="fu">mutate</span>(<span class="at">topdge =</span> <span class="fu">map</span>(SCvSC_N1, <span class="sc">~</span><span class="fu">data.frame</span>(edgeR<span class="sc">::</span><span class="fu">topTags</span>(.x, <span class="at">n =</span> <span class="cn">Inf</span>, <span class="at">p.value =</span> <span class="fl">0.05</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-8"><a href="#cb19-8"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(strainID, topdge) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-9"><a href="#cb19-9"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(topdge)) <span class="sc">%&gt;%</span></span>
+<span id="cb19-10"><a href="#cb19-10"></a>  <span class="co"># now filter by excluding genes with abs(logFC) &lt; 2</span></span>
+<span id="cb19-11"><a href="#cb19-11"></a>  <span class="fu">filter</span>(<span class="fu">abs</span>(logFC) <span class="sc">&gt;</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-12"><a href="#cb19-12"></a>  <span class="fu">mutate</span>(<span class="at">comparison =</span> <span class="st">"SCN3_versus_SC"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>average of all worm treatments vs SC</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="fu">set.seed</span>(<span class="dv">42378</span>)</span>
+<span id="cb20-2"><a href="#cb20-2"></a></span>
+<span id="cb20-3"><a href="#cb20-3"></a>countabs_nested_filt_fit_ctrst04 <span class="ot">&lt;-</span> countabs_nested_filt_fit <span class="sc">%&gt;%</span> </span>
+<span id="cb20-4"><a href="#cb20-4"></a>  <span class="co"># this contrast compares the SC_N1 treatment to control</span></span>
+<span id="cb20-5"><a href="#cb20-5"></a>  <span class="fu">mutate</span>(<span class="at">SCvSC_N1 =</span> <span class="fu">map</span>(fit, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">glmQLFTest</span>(.x, <span class="at">contrast =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-6"><a href="#cb20-6"></a>  <span class="co"># this gets all genes with a FDR controlled p.value &lt; 0.05</span></span>
+<span id="cb20-7"><a href="#cb20-7"></a>  <span class="fu">mutate</span>(<span class="at">topdge =</span> <span class="fu">map</span>(SCvSC_N1, <span class="sc">~</span><span class="fu">data.frame</span>(edgeR<span class="sc">::</span><span class="fu">topTags</span>(.x, <span class="at">n =</span> <span class="cn">Inf</span>, <span class="at">p.value =</span> <span class="fl">0.05</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-8"><a href="#cb20-8"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(strainID, topdge) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-9"><a href="#cb20-9"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(topdge)) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-10"><a href="#cb20-10"></a>  <span class="co"># now filter by excluding genes with abs(logFC) &lt; 2</span></span>
+<span id="cb20-11"><a href="#cb20-11"></a>  <span class="fu">filter</span>(<span class="fu">abs</span>(logFC) <span class="sc">&gt;</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-12"><a href="#cb20-12"></a>  <span class="fu">mutate</span>(<span class="at">comparison =</span> <span class="st">"allN_versus_SC"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="combine-dge-and-export" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="combine-dge-and-export"><span class="header-section-number">5.2</span> Combine DGE and export</h2>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb21-2"><a href="#cb21-2"></a>  countabs_nested_filt_fit_ctrst01,</span>
+<span id="cb21-3"><a href="#cb21-3"></a>  countabs_nested_filt_fit_ctrst02,</span>
+<span id="cb21-4"><a href="#cb21-4"></a>  countabs_nested_filt_fit_ctrst03,</span>
+<span id="cb21-5"><a href="#cb21-5"></a>  countabs_nested_filt_fit_ctrst04</span>
+<span id="cb21-6"><a href="#cb21-6"></a>) <span class="sc">%&gt;%</span> </span>
+<span id="cb21-7"><a href="#cb21-7"></a>  <span class="fu">write_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"dgelist.tsv.xz"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+
+
+<!-- -->
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb22" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb22-1"><a href="#cb22-1"></a><span class="co">---</span></span>
+<span id="cb22-2"><a href="#cb22-2"></a><span class="an">title:</span><span class="co"> "Read and format featureCounts results"</span></span>
+<span id="cb22-3"><a href="#cb22-3"></a><span class="an">author:</span><span class="co"> "Shane Hogle"</span></span>
+<span id="cb22-4"><a href="#cb22-4"></a><span class="an">date:</span><span class="co"> today</span></span>
+<span id="cb22-5"><a href="#cb22-5"></a><span class="an">link-citations:</span><span class="co"> true</span></span>
+<span id="cb22-6"><a href="#cb22-6"></a><span class="an">abstract:</span><span class="co"> ""</span></span>
+<span id="cb22-7"><a href="#cb22-7"></a><span class="co">---</span></span>
+<span id="cb22-8"><a href="#cb22-8"></a></span>
+<span id="cb22-9"><a href="#cb22-9"></a><span class="fu"># Setup</span></span>
+<span id="cb22-10"><a href="#cb22-10"></a></span>
+<span id="cb22-11"><a href="#cb22-11"></a><span class="fu">## Libraries</span></span>
+<span id="cb22-12"><a href="#cb22-12"></a></span>
+<span id="cb22-15"><a href="#cb22-15"></a><span class="in">```{r}</span></span>
+<span id="cb22-16"><a href="#cb22-16"></a><span class="co">#| output: false</span></span>
+<span id="cb22-17"><a href="#cb22-17"></a><span class="co">#| warning: false</span></span>
+<span id="cb22-18"><a href="#cb22-18"></a><span class="co">#| error: false</span></span>
+<span id="cb22-19"><a href="#cb22-19"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb22-20"><a href="#cb22-20"></a><span class="fu">library</span>(here)</span>
+<span id="cb22-21"><a href="#cb22-21"></a><span class="fu">library</span>(fs)</span>
+<span id="cb22-22"><a href="#cb22-22"></a><span class="fu">library</span>(edgeR)</span>
+<span id="cb22-23"><a href="#cb22-23"></a><span class="in">```</span></span>
+<span id="cb22-24"><a href="#cb22-24"></a></span>
+<span id="cb22-25"><a href="#cb22-25"></a><span class="fu">## Global variables</span></span>
+<span id="cb22-26"><a href="#cb22-26"></a></span>
+<span id="cb22-29"><a href="#cb22-29"></a><span class="in">```{r}</span></span>
+<span id="cb22-30"><a href="#cb22-30"></a><span class="co">#| output: false</span></span>
+<span id="cb22-31"><a href="#cb22-31"></a><span class="co">#| warning: false</span></span>
+<span id="cb22-32"><a href="#cb22-32"></a><span class="co">#| error: false</span></span>
+<span id="cb22-33"><a href="#cb22-33"></a>data_raw <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"_data_raw"</span>, <span class="st">"featureCounts"</span>)</span>
+<span id="cb22-34"><a href="#cb22-34"></a><span class="in">```</span></span>
+<span id="cb22-35"><a href="#cb22-35"></a></span>
+<span id="cb22-36"><a href="#cb22-36"></a><span class="fu"># Read data</span></span>
+<span id="cb22-37"><a href="#cb22-37"></a></span>
+<span id="cb22-38"><a href="#cb22-38"></a>There are three samples (ZDB<span class="sc">\[</span>1-3<span class="sc">\]</span>) from a higher trophic level worm *Pristionchus quartusdecimus* which were sequenced but not included in this paper/analysis. We will not read these files for our analysis</span>
+<span id="cb22-39"><a href="#cb22-39"></a></span>
+<span id="cb22-42"><a href="#cb22-42"></a><span class="in">```{r}</span></span>
+<span id="cb22-43"><a href="#cb22-43"></a>samppaths <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">dir_ls</span>(data_raw, <span class="at">regexp =</span> <span class="st">"*.tsv$"</span>)</span>
+<span id="cb22-44"><a href="#cb22-44"></a><span class="co"># here we exclude the ZDB samples </span></span>
+<span id="cb22-45"><a href="#cb22-45"></a>samppaths <span class="ot">&lt;-</span> samppaths[<span class="fu">str_detect</span>(samppaths, <span class="st">"ZDB</span><span class="sc">\\</span><span class="st">d+.tsv$"</span>, <span class="at">negate=</span><span class="cn">TRUE</span>)]</span>
+<span id="cb22-46"><a href="#cb22-46"></a>sampnames <span class="ot">&lt;-</span> fs<span class="sc">::</span><span class="fu">path_split</span>(samppaths) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-47"><a href="#cb22-47"></a>  purrr<span class="sc">::</span><span class="fu">map_chr</span>(dplyr<span class="sc">::</span>last) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-48"><a href="#cb22-48"></a>  <span class="fu">str_remove</span>(<span class="st">".tsv"</span>)</span>
+<span id="cb22-49"><a href="#cb22-49"></a><span class="in">```</span></span>
+<span id="cb22-50"><a href="#cb22-50"></a></span>
+<span id="cb22-51"><a href="#cb22-51"></a>Vectorized read in the <span class="in">`featureCounts`</span> files</span>
+<span id="cb22-52"><a href="#cb22-52"></a></span>
+<span id="cb22-55"><a href="#cb22-55"></a><span class="in">```{r}</span></span>
+<span id="cb22-56"><a href="#cb22-56"></a>countabs <span class="ot">&lt;-</span> samppaths <span class="sc">%&gt;%</span> </span>
+<span id="cb22-57"><a href="#cb22-57"></a>  purrr<span class="sc">::</span><span class="fu">set_names</span>(sampnames) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-58"><a href="#cb22-58"></a>  purrr<span class="sc">::</span><span class="fu">map</span>(</span>
+<span id="cb22-59"><a href="#cb22-59"></a>  readr<span class="sc">::</span>read_tsv,</span>
+<span id="cb22-60"><a href="#cb22-60"></a>  <span class="at">skip =</span> <span class="dv">2</span>,</span>
+<span id="cb22-61"><a href="#cb22-61"></a>  <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">"gene"</span>,<span class="st">"chromosome"</span>, <span class="st">"start"</span>, <span class="st">"end"</span>, <span class="st">"strand"</span>, <span class="st">"length"</span>, <span class="st">"count"</span>),</span>
+<span id="cb22-62"><a href="#cb22-62"></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-63"><a href="#cb22-63"></a>  purrr<span class="sc">::</span><span class="fu">list_rbind</span>(<span class="at">names_to =</span> <span class="st">"sample"</span>)</span>
+<span id="cb22-64"><a href="#cb22-64"></a><span class="in">```</span></span>
+<span id="cb22-65"><a href="#cb22-65"></a></span>
+<span id="cb22-66"><a href="#cb22-66"></a><span class="fu"># Formatting</span></span>
+<span id="cb22-67"><a href="#cb22-67"></a></span>
+<span id="cb22-68"><a href="#cb22-68"></a><span class="fu">## Remove rRNAs</span></span>
+<span id="cb22-69"><a href="#cb22-69"></a></span>
+<span id="cb22-70"><a href="#cb22-70"></a>Generally we don't care about rRNAs and only mRNAs which code for functions. We will filter out any residual rRNA genes that were not detected in our bioinformatics filtering step.</span>
+<span id="cb22-71"><a href="#cb22-71"></a></span>
+<span id="cb22-74"><a href="#cb22-74"></a><span class="in">```{r}</span></span>
+<span id="cb22-75"><a href="#cb22-75"></a>rrna <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"_data_raw"</span>, <span class="st">"rrna_nanjingSynCom122.tsv"</span>),</span>
+<span id="cb22-76"><a href="#cb22-76"></a>                 <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">"gene"</span>, <span class="st">"feature"</span>, <span class="st">"length"</span>, <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"description"</span>))</span>
+<span id="cb22-77"><a href="#cb22-77"></a><span class="in">```</span></span>
+<span id="cb22-80"><a href="#cb22-80"></a><span class="in">```{r}</span></span>
+<span id="cb22-81"><a href="#cb22-81"></a>countabs_no_rRNA <span class="ot">&lt;-</span> <span class="fu">anti_join</span>(countabs, dplyr<span class="sc">::</span><span class="fu">select</span>(rrna, gene), <span class="at">by =</span> <span class="fu">join_by</span>(gene))</span>
+<span id="cb22-82"><a href="#cb22-82"></a><span class="in">```</span></span>
+<span id="cb22-83"><a href="#cb22-83"></a></span>
+<span id="cb22-84"><a href="#cb22-84"></a><span class="fu">## Pivot to wide format</span></span>
+<span id="cb22-85"><a href="#cb22-85"></a></span>
+<span id="cb22-86"><a href="#cb22-86"></a>Key to do this properly is to perform the normalization for each species separately and not one big dataframe of all species combined. After normalization and differential testing the results are combined. This should help remove effects due to species abundance shifts so that we are focusing mostly on expression shifts.</span>
+<span id="cb22-87"><a href="#cb22-87"></a></span>
+<span id="cb22-88"><a href="#cb22-88"></a>Note that ZDCK = SC, ZDCE = SC_N1, ZDP = SC_N2, and ZDD = SC_N3</span>
+<span id="cb22-89"><a href="#cb22-89"></a></span>
+<span id="cb22-92"><a href="#cb22-92"></a><span class="in">```{r}</span></span>
+<span id="cb22-93"><a href="#cb22-93"></a>countabs_nested <span class="ot">&lt;-</span> countabs_no_rRNA <span class="sc">%&gt;%</span> </span>
+<span id="cb22-94"><a href="#cb22-94"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> <span class="st">"sample"</span>, <span class="at">values_from =</span> <span class="st">"count"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-95"><a href="#cb22-95"></a>  <span class="co"># reordering columns to make group specification easier later for DGElist</span></span>
+<span id="cb22-96"><a href="#cb22-96"></a>  dplyr<span class="sc">::</span><span class="fu">relocate</span>(<span class="fu">c</span>(ZDCK1, ZDCK2, ZDCK3), <span class="at">.after =</span> length) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-97"><a href="#cb22-97"></a>  dplyr<span class="sc">::</span><span class="fu">relocate</span>(<span class="fu">c</span>(ZDP1, ZDP2, ZDP3), <span class="at">.after =</span> ZDCE3) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-98"><a href="#cb22-98"></a>  <span class="co"># creating a strainID variable and nesting by it</span></span>
+<span id="cb22-99"><a href="#cb22-99"></a>  <span class="fu">mutate</span>(<span class="at">strainID=</span><span class="fu">str_remove</span>(chromosome, <span class="st">"</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">d+$"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-100"><a href="#cb22-100"></a>  <span class="fu">nest</span>(<span class="at">.by =</span> strainID)</span>
+<span id="cb22-101"><a href="#cb22-101"></a><span class="in">```</span></span>
+<span id="cb22-102"><a href="#cb22-102"></a></span>
+<span id="cb22-103"><a href="#cb22-103"></a>Create edgeR DGElist objects for each species while filtering out genes with any cpm <span class="sc">\&lt;</span> 0.5 and genes with sum across all samples <span class="sc">\&lt;</span>= 2</span>
+<span id="cb22-104"><a href="#cb22-104"></a></span>
+<span id="cb22-107"><a href="#cb22-107"></a><span class="in">```{r}</span></span>
+<span id="cb22-108"><a href="#cb22-108"></a><span class="fu">set.seed</span>(<span class="dv">23467</span>)</span>
+<span id="cb22-109"><a href="#cb22-109"></a></span>
+<span id="cb22-110"><a href="#cb22-110"></a>treatment_grouping <span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">"SC"</span>, <span class="st">"SC"</span>, <span class="st">"SC"</span>, <span class="st">"SC_N1"</span>, <span class="st">"SC_N1"</span>, <span class="st">"SC_N1"</span>, <span class="st">"SC_N2"</span>, <span class="st">"SC_N2"</span>, <span class="st">"SC_N2"</span>, <span class="st">"SC_N3"</span>, <span class="st">"SC_N3"</span>, <span class="st">"SC_N3"</span>)</span>
+<span id="cb22-111"><a href="#cb22-111"></a></span>
+<span id="cb22-112"><a href="#cb22-112"></a>countabs_nested_filt <span class="ot">&lt;-</span> countabs_nested <span class="sc">%&gt;%</span> </span>
+<span id="cb22-113"><a href="#cb22-113"></a>  <span class="co"># create the DGEList object</span></span>
+<span id="cb22-114"><a href="#cb22-114"></a>  <span class="fu">mutate</span>(<span class="at">dgelist =</span> <span class="fu">map</span>(data, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">DGEList</span>(<span class="at">counts=</span>.x[,<span class="dv">7</span><span class="sc">:</span><span class="dv">18</span>], <span class="at">genes=</span>.x[,<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>], </span>
+<span id="cb22-115"><a href="#cb22-115"></a>                       <span class="co"># this grouping puts columns 1-3 (SC1-3) as the intercept in the later GLM</span></span>
+<span id="cb22-116"><a href="#cb22-116"></a>                       <span class="at">group =</span> treatment_grouping))) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-117"><a href="#cb22-117"></a>  <span class="co"># filter out low expressed genes.</span></span>
+<span id="cb22-118"><a href="#cb22-118"></a>  <span class="fu">mutate</span>(<span class="at">keepme =</span> <span class="fu">map</span>(dgelist, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">filterByExpr</span>(.x))) <span class="sc">%&gt;%</span></span>
+<span id="cb22-119"><a href="#cb22-119"></a>  <span class="co"># subset DGElist to high expression genes</span></span>
+<span id="cb22-120"><a href="#cb22-120"></a>  <span class="fu">mutate</span>(<span class="at">dgelist_filt =</span> <span class="fu">map2</span>(dgelist, keepme, <span class="sc">~</span>.x[.y, , <span class="at">keep.lib.sizes=</span><span class="cn">FALSE</span>]))</span>
+<span id="cb22-121"><a href="#cb22-121"></a><span class="in">```</span></span>
+<span id="cb22-122"><a href="#cb22-122"></a></span>
+<span id="cb22-123"><a href="#cb22-123"></a><span class="fu"># Sample clustering</span></span>
+<span id="cb22-124"><a href="#cb22-124"></a></span>
+<span id="cb22-125"><a href="#cb22-125"></a>In section 2.17 of the edgeR manual it states:</span>
+<span id="cb22-126"><a href="#cb22-126"></a></span>
+<span id="cb22-127"><a href="#cb22-127"></a><span class="at">&gt; The function plotMDS draws a multi-dimensional scaling plot of the RNA samples in which distances correspond to leading log-fold-changes between each pair of RNA samples. The leading log-fold-change is the average (root-mean-square) of the largest absolute log-fold changes between each pair of samples. This plot can be viewed as a type of unsupervised clustering. The function also provides the option of computing distances in terms of BCV between each pair of samples instead of leading logFC.</span></span>
+<span id="cb22-128"><a href="#cb22-128"></a><span class="at">&gt;</span></span>
+<span id="cb22-129"><a href="#cb22-129"></a><span class="at">&gt; Inputing RNA-seq counts to clustering or heatmap routines designed for microarray data is not straight-forward, and the best way to do this is still a matter of research. To draw a heatmap of individual RNA-seq samples, we suggest using moderated log-counts-per-million. This can be calculated by cpm with positive values for prior.count, for example </span><span class="in">`logcpm &lt;- cpm(y, log=TRUE)`</span><span class="at"> where y is the normalized DGEList object. This produces a matrix of log2 counts-per-million (logCPM), with undefined values avoided and the poorly defined log-fold-changes for low counts shrunk towards zero. Larger values for prior.count produce stronger moderation of the values for low counts and more shrinkage of the corresponding log-fold-changes. The logCPM values can optionally be converted to RPKM or FPKM by subtracting log2 of gene length, see rpkm().</span></span>
+<span id="cb22-130"><a href="#cb22-130"></a></span>
+<span id="cb22-131"><a href="#cb22-131"></a><span class="fu">## CPM</span></span>
+<span id="cb22-132"><a href="#cb22-132"></a></span>
+<span id="cb22-133"><a href="#cb22-133"></a>To get output needed for clustering we will grab <span class="in">`cpm`</span> values from the TMM normalized dataset</span>
+<span id="cb22-134"><a href="#cb22-134"></a></span>
+<span id="cb22-137"><a href="#cb22-137"></a><span class="in">```{r}</span></span>
+<span id="cb22-138"><a href="#cb22-138"></a><span class="fu">set.seed</span>(<span class="dv">42378</span>)</span>
+<span id="cb22-139"><a href="#cb22-139"></a>countabs_nested_filt_cpm <span class="ot">&lt;-</span> countabs_nested_filt <span class="sc">%&gt;%</span> </span>
+<span id="cb22-140"><a href="#cb22-140"></a>  <span class="co"># calculate TMM normalization factors</span></span>
+<span id="cb22-141"><a href="#cb22-141"></a>  <span class="fu">mutate</span>(<span class="at">normfact =</span> <span class="fu">map</span>(dgelist_filt, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">calcNormFactors</span>(.x))) <span class="sc">%&gt;%</span></span>
+<span id="cb22-142"><a href="#cb22-142"></a>  <span class="co"># get the normalized counts on log2 scale</span></span>
+<span id="cb22-143"><a href="#cb22-143"></a>  <span class="fu">mutate</span>(<span class="at">cpms =</span> <span class="fu">map</span>(normfact, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">cpm</span>(.x, <span class="at">log=</span><span class="cn">TRUE</span>)))</span>
+<span id="cb22-144"><a href="#cb22-144"></a><span class="in">```</span></span>
+<span id="cb22-145"><a href="#cb22-145"></a></span>
+<span id="cb22-146"><a href="#cb22-146"></a>Some formatting to produce gene by sample matrix</span>
+<span id="cb22-147"><a href="#cb22-147"></a></span>
+<span id="cb22-150"><a href="#cb22-150"></a><span class="in">```{r}</span></span>
+<span id="cb22-151"><a href="#cb22-151"></a>cpm_combined <span class="ot">&lt;-</span> countabs_nested_filt_cpm <span class="sc">%&gt;%</span> </span>
+<span id="cb22-152"><a href="#cb22-152"></a>  <span class="fu">mutate</span>(<span class="at">df =</span> <span class="fu">map2</span>(normfact, cpms, <span class="sc">~</span><span class="fu">as.data.frame</span>(<span class="fu">cbind</span>(<span class="at">gene=</span>.x<span class="sc">$</span>genes<span class="sc">$</span>gene, .y)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-153"><a href="#cb22-153"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(strainID, df) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-154"><a href="#cb22-154"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(df))</span>
+<span id="cb22-155"><a href="#cb22-155"></a><span class="in">```</span></span>
+<span id="cb22-156"><a href="#cb22-156"></a></span>
+<span id="cb22-157"><a href="#cb22-157"></a>~~Another way to do this would be to maybe catch the output form the plotMDS function from `limma`~~</span>
+<span id="cb22-158"><a href="#cb22-158"></a></span>
+<span id="cb22-159"><a href="#cb22-159"></a>Never mind it doesn't give the loadings which is what we'd need</span>
+<span id="cb22-160"><a href="#cb22-160"></a></span>
+<span id="cb22-163"><a href="#cb22-163"></a><span class="in">```{r}</span></span>
+<span id="cb22-164"><a href="#cb22-164"></a><span class="co">#| include: true</span></span>
+<span id="cb22-165"><a href="#cb22-165"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-166"><a href="#cb22-166"></a>countabs_nested_filt_mds <span class="ot">&lt;-</span> countabs_nested_filt_cpm <span class="sc">%&gt;%</span> </span>
+<span id="cb22-167"><a href="#cb22-167"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">10</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-168"><a href="#cb22-168"></a>  <span class="co"># get the normalized counts</span></span>
+<span id="cb22-169"><a href="#cb22-169"></a>  <span class="fu">mutate</span>(<span class="at">mds =</span> <span class="fu">map</span>(normfact, <span class="sc">~</span>limma<span class="sc">::</span><span class="fu">plotMDS</span>(.x, <span class="at">plot =</span> <span class="cn">FALSE</span>)))</span>
+<span id="cb22-170"><a href="#cb22-170"></a><span class="in">```</span></span>
+<span id="cb22-171"><a href="#cb22-171"></a></span>
+<span id="cb22-172"><a href="#cb22-172"></a>write for later</span>
+<span id="cb22-173"><a href="#cb22-173"></a></span>
+<span id="cb22-176"><a href="#cb22-176"></a><span class="in">```{r}</span></span>
+<span id="cb22-177"><a href="#cb22-177"></a>cpm_combined <span class="sc">%&gt;%</span> </span>
+<span id="cb22-178"><a href="#cb22-178"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>strainID) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-179"><a href="#cb22-179"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(<span class="sc">-</span>gene), as.numeric)) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-180"><a href="#cb22-180"></a>  <span class="fu">write_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"genes_cpm.tsv.xz"</span>))</span>
+<span id="cb22-181"><a href="#cb22-181"></a><span class="in">```</span></span>
+<span id="cb22-182"><a href="#cb22-182"></a></span>
+<span id="cb22-183"><a href="#cb22-183"></a><span class="fu"># Differential Gene expression</span></span>
+<span id="cb22-184"><a href="#cb22-184"></a></span>
+<span id="cb22-185"><a href="#cb22-185"></a>see page 34 of edgeR manual for example of specifying model matrix</span>
+<span id="cb22-186"><a href="#cb22-186"></a></span>
+<span id="cb22-189"><a href="#cb22-189"></a><span class="in">```{r}</span></span>
+<span id="cb22-190"><a href="#cb22-190"></a><span class="co">#this generates a design matrix where treatments correspond to the different worms (or control)</span></span>
+<span id="cb22-191"><a href="#cb22-191"></a>samps <span class="ot">&lt;-</span> countabs_nested_filt[[<span class="dv">5</span>]][[<span class="dv">1</span>]]<span class="sc">$</span>samples</span>
+<span id="cb22-192"><a href="#cb22-192"></a>design <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span><span class="dv">0</span><span class="sc">+</span>treatment_grouping, <span class="at">data=</span>samps)</span>
+<span id="cb22-193"><a href="#cb22-193"></a><span class="fu">colnames</span>(design) <span class="ot">&lt;-</span> <span class="fu">levels</span>(samps<span class="sc">$</span>group)</span>
+<span id="cb22-194"><a href="#cb22-194"></a>design</span>
+<span id="cb22-195"><a href="#cb22-195"></a><span class="in">```</span></span>
+<span id="cb22-196"><a href="#cb22-196"></a></span>
+<span id="cb22-199"><a href="#cb22-199"></a><span class="in">```{r}</span></span>
+<span id="cb22-200"><a href="#cb22-200"></a><span class="fu">set.seed</span>(<span class="dv">42378</span>)</span>
+<span id="cb22-201"><a href="#cb22-201"></a></span>
+<span id="cb22-202"><a href="#cb22-202"></a>countabs_nested_filt_fit <span class="ot">&lt;-</span> countabs_nested <span class="sc">%&gt;%</span> </span>
+<span id="cb22-203"><a href="#cb22-203"></a>  <span class="co"># create the DGEList object</span></span>
+<span id="cb22-204"><a href="#cb22-204"></a>  <span class="fu">mutate</span>(<span class="at">dgelist =</span> <span class="fu">map</span>(data, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">DGEList</span>(<span class="at">counts=</span>.x[,<span class="dv">7</span><span class="sc">:</span><span class="dv">18</span>], <span class="at">genes=</span>.x[,<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>], </span>
+<span id="cb22-205"><a href="#cb22-205"></a>                       <span class="co"># this grouping puts columns 1-3 (SC1-3) as the intercept in the later GLM</span></span>
+<span id="cb22-206"><a href="#cb22-206"></a>                       <span class="at">group =</span> treatment_grouping))) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-207"><a href="#cb22-207"></a>  <span class="co"># filter out low expressed genes.</span></span>
+<span id="cb22-208"><a href="#cb22-208"></a>  <span class="fu">mutate</span>(<span class="at">keepme =</span> <span class="fu">map</span>(dgelist, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">filterByExpr</span>(.x))) <span class="sc">%&gt;%</span></span>
+<span id="cb22-209"><a href="#cb22-209"></a>  <span class="co"># subset DGElist to high enough expressed genes</span></span>
+<span id="cb22-210"><a href="#cb22-210"></a>  <span class="fu">mutate</span>(<span class="at">dgelist_filt =</span> <span class="fu">map2</span>(dgelist, keepme, <span class="sc">~</span>.x[.y, , <span class="at">keep.lib.sizes=</span><span class="cn">FALSE</span>])) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-211"><a href="#cb22-211"></a>  <span class="co"># calculate TMM normalization factors</span></span>
+<span id="cb22-212"><a href="#cb22-212"></a>  <span class="fu">mutate</span>(<span class="at">normfact =</span> <span class="fu">map</span>(dgelist_filt, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">normLibSizes</span>(.x))) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-213"><a href="#cb22-213"></a>  <span class="co"># fit glms with design specified above</span></span>
+<span id="cb22-214"><a href="#cb22-214"></a>  <span class="fu">mutate</span>(<span class="at">fit =</span> <span class="fu">map</span>(dgelist_filt, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">glmQLFit</span>(.x, design)))</span>
+<span id="cb22-215"><a href="#cb22-215"></a><span class="in">```</span></span>
+<span id="cb22-216"><a href="#cb22-216"></a></span>
+<span id="cb22-217"><a href="#cb22-217"></a><span class="fu">## Contrasts</span></span>
+<span id="cb22-218"><a href="#cb22-218"></a></span>
+<span id="cb22-219"><a href="#cb22-219"></a>SC_N1 vs SC</span>
+<span id="cb22-220"><a href="#cb22-220"></a></span>
+<span id="cb22-223"><a href="#cb22-223"></a><span class="in">```{r}</span></span>
+<span id="cb22-224"><a href="#cb22-224"></a><span class="fu">set.seed</span>(<span class="dv">42378</span>)</span>
+<span id="cb22-225"><a href="#cb22-225"></a></span>
+<span id="cb22-226"><a href="#cb22-226"></a>countabs_nested_filt_fit_ctrst01 <span class="ot">&lt;-</span> countabs_nested_filt_fit <span class="sc">%&gt;%</span> </span>
+<span id="cb22-227"><a href="#cb22-227"></a>  <span class="co"># this contrast compares the SC_N1 treatment to control</span></span>
+<span id="cb22-228"><a href="#cb22-228"></a>  <span class="fu">mutate</span>(<span class="at">SCvSC_N1 =</span> <span class="fu">map</span>(fit, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">glmQLFTest</span>(.x, <span class="at">contrast =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-229"><a href="#cb22-229"></a>  <span class="co"># this gets all genes with a FDR controlled p.value &lt; 0.05</span></span>
+<span id="cb22-230"><a href="#cb22-230"></a>  <span class="fu">mutate</span>(<span class="at">topdge =</span> <span class="fu">map</span>(SCvSC_N1, <span class="sc">~</span><span class="fu">data.frame</span>(edgeR<span class="sc">::</span><span class="fu">topTags</span>(.x, <span class="at">n =</span> <span class="cn">Inf</span>, <span class="at">p.value =</span> <span class="fl">0.05</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-231"><a href="#cb22-231"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(strainID, topdge) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-232"><a href="#cb22-232"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(topdge)) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-233"><a href="#cb22-233"></a>  <span class="co"># now filter by excluding genes with abs(logFC) &lt; 2</span></span>
+<span id="cb22-234"><a href="#cb22-234"></a>  <span class="fu">filter</span>(<span class="fu">abs</span>(logFC) <span class="sc">&gt;</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-235"><a href="#cb22-235"></a>  <span class="fu">mutate</span>(<span class="at">comparison =</span> <span class="st">"SCN1_versus_SC"</span>)</span>
+<span id="cb22-236"><a href="#cb22-236"></a><span class="in">```</span></span>
+<span id="cb22-237"><a href="#cb22-237"></a></span>
+<span id="cb22-238"><a href="#cb22-238"></a>SC_N2 vs SC</span>
+<span id="cb22-239"><a href="#cb22-239"></a></span>
+<span id="cb22-242"><a href="#cb22-242"></a><span class="in">```{r}</span></span>
+<span id="cb22-243"><a href="#cb22-243"></a><span class="fu">set.seed</span>(<span class="dv">42378</span>)</span>
+<span id="cb22-244"><a href="#cb22-244"></a></span>
+<span id="cb22-245"><a href="#cb22-245"></a>countabs_nested_filt_fit_ctrst02 <span class="ot">&lt;-</span> countabs_nested_filt_fit <span class="sc">%&gt;%</span> </span>
+<span id="cb22-246"><a href="#cb22-246"></a>  <span class="co"># this contrast compares the SC_N1 treatment to control</span></span>
+<span id="cb22-247"><a href="#cb22-247"></a>  <span class="fu">mutate</span>(<span class="at">SCvSC_N1 =</span> <span class="fu">map</span>(fit, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">glmQLFTest</span>(.x, <span class="at">contrast =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-248"><a href="#cb22-248"></a>  <span class="co"># this gets all genes with a FDR controlled p.value &lt; 0.05</span></span>
+<span id="cb22-249"><a href="#cb22-249"></a>  <span class="fu">mutate</span>(<span class="at">topdge =</span> <span class="fu">map</span>(SCvSC_N1, <span class="sc">~</span><span class="fu">data.frame</span>(edgeR<span class="sc">::</span><span class="fu">topTags</span>(.x, <span class="at">n =</span> <span class="cn">Inf</span>, <span class="at">p.value =</span> <span class="fl">0.05</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-250"><a href="#cb22-250"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(strainID, topdge) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-251"><a href="#cb22-251"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(topdge)) <span class="sc">%&gt;%</span></span>
+<span id="cb22-252"><a href="#cb22-252"></a>  <span class="co"># now filter by excluding genes with abs(logFC) &lt; 2</span></span>
+<span id="cb22-253"><a href="#cb22-253"></a>  <span class="fu">filter</span>(<span class="fu">abs</span>(logFC) <span class="sc">&gt;</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-254"><a href="#cb22-254"></a>  <span class="fu">mutate</span>(<span class="at">comparison =</span> <span class="st">"SCN2_versus_SC"</span>)</span>
+<span id="cb22-255"><a href="#cb22-255"></a><span class="in">```</span></span>
+<span id="cb22-256"><a href="#cb22-256"></a></span>
+<span id="cb22-257"><a href="#cb22-257"></a>SC_N3 vs SC</span>
+<span id="cb22-258"><a href="#cb22-258"></a></span>
+<span id="cb22-261"><a href="#cb22-261"></a><span class="in">```{r}</span></span>
+<span id="cb22-262"><a href="#cb22-262"></a><span class="fu">set.seed</span>(<span class="dv">42378</span>)</span>
+<span id="cb22-263"><a href="#cb22-263"></a></span>
+<span id="cb22-264"><a href="#cb22-264"></a>countabs_nested_filt_fit_ctrst03 <span class="ot">&lt;-</span> countabs_nested_filt_fit <span class="sc">%&gt;%</span> </span>
+<span id="cb22-265"><a href="#cb22-265"></a>  <span class="co"># this contrast compares the SC_N1 treatment to control</span></span>
+<span id="cb22-266"><a href="#cb22-266"></a>  <span class="fu">mutate</span>(<span class="at">SCvSC_N1 =</span> <span class="fu">map</span>(fit, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">glmQLFTest</span>(.x, <span class="at">contrast =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-267"><a href="#cb22-267"></a>  <span class="co"># this gets all genes with a FDR controlled p.value &lt; 0.05</span></span>
+<span id="cb22-268"><a href="#cb22-268"></a>  <span class="fu">mutate</span>(<span class="at">topdge =</span> <span class="fu">map</span>(SCvSC_N1, <span class="sc">~</span><span class="fu">data.frame</span>(edgeR<span class="sc">::</span><span class="fu">topTags</span>(.x, <span class="at">n =</span> <span class="cn">Inf</span>, <span class="at">p.value =</span> <span class="fl">0.05</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-269"><a href="#cb22-269"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(strainID, topdge) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-270"><a href="#cb22-270"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(topdge)) <span class="sc">%&gt;%</span></span>
+<span id="cb22-271"><a href="#cb22-271"></a>  <span class="co"># now filter by excluding genes with abs(logFC) &lt; 2</span></span>
+<span id="cb22-272"><a href="#cb22-272"></a>  <span class="fu">filter</span>(<span class="fu">abs</span>(logFC) <span class="sc">&gt;</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-273"><a href="#cb22-273"></a>  <span class="fu">mutate</span>(<span class="at">comparison =</span> <span class="st">"SCN3_versus_SC"</span>)</span>
+<span id="cb22-274"><a href="#cb22-274"></a><span class="in">```</span></span>
+<span id="cb22-275"><a href="#cb22-275"></a></span>
+<span id="cb22-276"><a href="#cb22-276"></a>average of all worm treatments vs SC</span>
+<span id="cb22-277"><a href="#cb22-277"></a></span>
+<span id="cb22-280"><a href="#cb22-280"></a><span class="in">```{r}</span></span>
+<span id="cb22-281"><a href="#cb22-281"></a><span class="fu">set.seed</span>(<span class="dv">42378</span>)</span>
+<span id="cb22-282"><a href="#cb22-282"></a></span>
+<span id="cb22-283"><a href="#cb22-283"></a>countabs_nested_filt_fit_ctrst04 <span class="ot">&lt;-</span> countabs_nested_filt_fit <span class="sc">%&gt;%</span> </span>
+<span id="cb22-284"><a href="#cb22-284"></a>  <span class="co"># this contrast compares the SC_N1 treatment to control</span></span>
+<span id="cb22-285"><a href="#cb22-285"></a>  <span class="fu">mutate</span>(<span class="at">SCvSC_N1 =</span> <span class="fu">map</span>(fit, <span class="sc">~</span>edgeR<span class="sc">::</span><span class="fu">glmQLFTest</span>(.x, <span class="at">contrast =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-286"><a href="#cb22-286"></a>  <span class="co"># this gets all genes with a FDR controlled p.value &lt; 0.05</span></span>
+<span id="cb22-287"><a href="#cb22-287"></a>  <span class="fu">mutate</span>(<span class="at">topdge =</span> <span class="fu">map</span>(SCvSC_N1, <span class="sc">~</span><span class="fu">data.frame</span>(edgeR<span class="sc">::</span><span class="fu">topTags</span>(.x, <span class="at">n =</span> <span class="cn">Inf</span>, <span class="at">p.value =</span> <span class="fl">0.05</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-288"><a href="#cb22-288"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(strainID, topdge) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-289"><a href="#cb22-289"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(topdge)) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-290"><a href="#cb22-290"></a>  <span class="co"># now filter by excluding genes with abs(logFC) &lt; 2</span></span>
+<span id="cb22-291"><a href="#cb22-291"></a>  <span class="fu">filter</span>(<span class="fu">abs</span>(logFC) <span class="sc">&gt;</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-292"><a href="#cb22-292"></a>  <span class="fu">mutate</span>(<span class="at">comparison =</span> <span class="st">"allN_versus_SC"</span>)</span>
+<span id="cb22-293"><a href="#cb22-293"></a><span class="in">```</span></span>
+<span id="cb22-294"><a href="#cb22-294"></a></span>
+<span id="cb22-295"><a href="#cb22-295"></a><span class="fu">## Combine DGE and export</span></span>
+<span id="cb22-296"><a href="#cb22-296"></a></span>
+<span id="cb22-299"><a href="#cb22-299"></a><span class="in">```{r}</span></span>
+<span id="cb22-300"><a href="#cb22-300"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb22-301"><a href="#cb22-301"></a>  countabs_nested_filt_fit_ctrst01,</span>
+<span id="cb22-302"><a href="#cb22-302"></a>  countabs_nested_filt_fit_ctrst02,</span>
+<span id="cb22-303"><a href="#cb22-303"></a>  countabs_nested_filt_fit_ctrst03,</span>
+<span id="cb22-304"><a href="#cb22-304"></a>  countabs_nested_filt_fit_ctrst04</span>
+<span id="cb22-305"><a href="#cb22-305"></a>) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-306"><a href="#cb22-306"></a>  <span class="fu">write_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"dgelist.tsv.xz"</span>))</span>
+<span id="cb22-307"><a href="#cb22-307"></a><span class="in">```</span></span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

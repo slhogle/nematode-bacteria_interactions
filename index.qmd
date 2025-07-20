@@ -1,5 +1,5 @@
 ---
-title: "Data analysis for the project hogleLabProjTemplate"
+title: "RNAseq ata analysis for the project 'bacteria-nematode interactions'"
 date: today
 author:
   - name: Shane L Hogle
@@ -10,13 +10,10 @@ author:
         state: Finland
         url: https://www.utu.fi/en
 #abstract: > 
-#  The abstract text can go here 
-#  and also here ...
 keywords:
   - Microbiology
   - Ecology
   - Evolution
-  - Antimicrobial resistance (AMR)
 license: "CC BY"
 copyright: 
   holder: Shane L Hogle
@@ -28,48 +25,158 @@ copyright:
 #   doi: 
 funding: "The author received no specific funding for this work."
 #bibliography: references.bib
+editor: 
+  markdown: 
+    wrap: sentence
 ---
 
-## Manuscript:
+# Overview
 
-◇ Corresponding author
+This work is done in collaboration with Dr. Liu Ting, Dr. Li Gen, and Prof. Zhong Wei at Nanjing Agriculturatl University.
+Here we quality control the RNAseq data from a metatranscriptomics experiment, map to the Nanjing 122 bacterial species SynCom, and count reads mapping to genes.
 
-### Published record
+In subsequent steps we process the output in R so that we can provide it to our collaborators.
 
-**Title XYZ**\
-FIRST AUTHOR<sup>◇</sup>, ..., LAST AUTHOR<sup>◇</sup>. *XYZ* (2025) [doi:]()
+## Format 122 species SynCom
 
-### Preprint
+Note this code is not meant to be executed in this project directory but is meant to provide a record of the commands used to format and process the necessary data files from the SynCom assemblies.
 
-**Title XYZ**\
-FIRST AUTHOR<sup>◇</sup>, ..., LAST AUTHOR<sup>◇</sup>. *BioRxiv* (2025) [doi:]()
+1.  Formatting assemblies
 
-## Introduction
+```{bash}
+# Get the ids of the genome assemblies
+mkdir assemblies
+cd assemblies_orig
+printf '%s\n' *.fna | sed 's/.fna//g' > ids.txt
+mv ids.txt ..
+cd ..
+```
 
-The goal of this project is to examine how ...
+```{bash}
+# Here we rename all chromosomes so that they have a single name, appending an
+# integer if there are multiple sequences per genome
+cat ids.txt | while read ID; do seqkit replace -p ".*" -r $ID assemblies_orig/$ID.fna | seqkit rename -n | seqkit replace -p "\s.*$" -r "" | seqkit replace -p "_" -r "." > assemblies/$ID.fna; done
+```
 
-## Experiment overview
+```{bash}
+# Now we find assemblies with multiple chromosomes for some later manual tweaks.
+# This is needed to have a consistent naming scheme
+grep -c ">" assemblies/* | sed 's/\:/ /g' | sort -nrk2,2
+```
 
-This is how we did our experiment...
+2.  Prokka
 
-## Analysis overview
+Run prokka to call genes on the 122 assemblies and annotate them with a consistent format - see `sh/prokka/prokka.sh`
 
-This is how we did our data analysis...
+3.  Eggnoggmapper
+
+Run eggnoggmapper to functionally annotate genes - see `sh/eggnoggmapper/eggnoggmapper.sh`
+
+4.  Formatting for rRNA filtering (these steps performed on computer cluster)
+
+Get rRNAs from prokka which will be used later in the quality control steps to filter out reads mapping to bacterial rRNAs
+
+```
+cd prokka
+grep "ribosomal RNA" */*.tsv | sed 's/.tsv:/.ffn\t/g' | cut -f1,2 | while read FILE RNA; do seqkit grep -n -r -p "${RNA}" ${FILE}; done > nanjingSynCom122_rrnas.fasta
+seqkit rmdup -s nanjingSynCom122_rrnas.fasta
+```
+
+## Preparing for read mapping and feature counting
+
+1. Make SAF file from GFF file to be used with featureCounts
+
+```
+cd rnaseq/map_count/saf
+cat ../../../nanjingSynCom122/ids.txt | while read ID; do sed -n '/>/q;p' ../../../nanjingSynCom122/prokka/${ID}/${ID}.gff | grep -v "^#" | sed 's/;.*$//g' | sed 's/ID=//g' | bioawk -t '{print $9, $1, $4, $5, $7}' | grep -v "^note"; done > nanjingSynCom122_combined.saf
+```
+
+The resulting file looks like this
+
+```
+head saf/nanjingSynCom122_combined.saf
+```
+
+```         
+GeneID  Chr Start   End Strand
+1aci1_00001 1aci1   178 1365    +
+1aci1_00002 1aci1   1498    2616    +
+1aci1_00003 1aci1   2754    5378    +
+1aci1_00004 1aci1   5603    5920    -
+1aci1_00005 1aci1   6257    6868    -
+1aci1_00006 1aci1   7122    7913    +
+1aci1_00007 1aci1   7967    8389    +
+1aci1_00008 1aci1   8463    8807    -
+1aci1_00009 1aci1   8986    9246    +
+```
+
+Concatenate all assemblies into single file for mapping with bwa. Create the necessary indexes
+
+```
+cd rnaseq/map_count/refs
+cat ../../../nanjingSynCom122/prokka/*/*.fna > nanjingSynCom122_combined.fna
+samtools faidx nanjingSynCom122_combined.fna
+bwa index nanjingSynCom122_combined.fna
+```
+
+## Quality control RNA-seq data
+
+Here we do standard filtering and trimming of reads.Bacterial community total cDNA read pairs are processed using BBDuk (version 39.23
+(https://sourceforge.net/projects/bbmap/) to remove contaminants, trim reads that contained adapter sequence, right quality trim reads where quality drops below Q10, and exclude reads with more than 2 Ns. BBMap (version 39.23) was then used map cDNA read pairs to a database of bactieral 16S, 5S and 18S rRNAs from the 122 bacterial species SynCom based on exact matches.
+
+The steps to reproduce this are available in `sh/qualitycontrol/`
+
+## Map RNA-seq data
+
+Here we map the quality controlled read pairs to a concatenated reference of the 122 bacterial SynCom genomes using BWA. The resulting BAM files are sorted and then the program featureCounts v2.1.1 is used to count the number of reads mapping to genes in the assemblies.
+
+The steps to reproduce this are available in `sh/map_count/`
+
+## Process data for differential expression
+
+6.  Load big matrix into R and use gene identifiers to partition into n \<= 122 species-specific sub-matrices
+
+## Compare Samples via Ordination
+
+https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02337-8
+
+7.  Calculate TMM for each species sub-matrix separately.
+
+-   https://genomebiology.biomedcentral.com/articles/10.1186/gb-2010-11-3-r25
+-   https://www.biostars.org/p/9475236/
+-   https://www.biostars.org/p/306010/
+-   https://www.biostars.org/p/419018/#419177
+-   https://davetang.github.io/muse/edger.html
+
+8.  Combine TMM matrices for all species into a single matrix and use in a clustering analysis like tSNE (reproduces Fig. 3d)
+
+> For the comparison of transcript abundance across multiple samples, transcript counts need to be normalized in each organism by individual transcript lengths and total library size.
+> Due to the differences in transcript abundances between the major and minor organisms, counts for each organism should be normalized independently using transcript per million (TPM) calculations \[73\].
+> TPM values are calculated by dividing all read counts by the length of each gene in kilobases to obtain a reads per kilobase (RPK) value for each gene \[92\].
+> The RPK value for each gene is then divided by the sum of RPK values divided by 1,000,000.
+> While RPKM and FPKM calculations are also used for normalization, the sum of the RPKM and FPKM values differ between samples with differing numbers of reads, which can result in disproportionate comparisons \[92\].
+
+## Find differentially expressed genes
+
+9.  Run a separate edgeR analysis for each species sub-matrix
+10. Concatenate results of significantly differentially expressed genes
+11. Send to collaborators
 
 ## Availability
 
 Data and code in this GitHub repository (<https://github.com/GHUSERNAME/REPOSITORYNAME>) are provided under [GNU AGPL3](https://www.gnu.org/licenses/agpl-3.0.html).
-The rendered project site is available at <https://GHUSERNAME.github.io/REPOSITORYNAME/>, which has been produced using [Quarto notebooks](https://quarto.org/). 
+The rendered project site is available at <https://GHUSERNAME.github.io/REPOSITORYNAME/>, which has been produced using [Quarto notebooks](https://quarto.org/).
 The content on the rendered site is released under the [CC BY 4.0.](https://creativecommons.org/licenses/by/4.0/)
 This repository hosts all code and data for this project, including the code necessary to fully recreate the rendered webpage.
 
 An archived release of the code is available from Zenodo: <https://zenodo.org/records/EVENTUAL_ZENODO_RECORD>
 
-Raw sequencing data used in the project is available from NCBI Bioproject [PRJNA00000000](https://www.ncbi.nlm.nih
+Raw sequencing data used in the project is available from NCBI Bioproject \[PRJNA00000000\](https://www.ncbi.nlm.nih
 
 ## Reproducibility
 
-The project uses [`renv`](https://rstudio.github.io/renv/index.html) to create a reproducible environment to execute the code in this project. [See here](https://rstudio.github.io/renv/articles/renv.html#collaboration) for a brief overview on collaboration and reproduction of the entire project. 
+The project uses [`renv`](https://rstudio.github.io/renv/index.html) to create a reproducible environment to execute the code in this project.
+[See here](https://rstudio.github.io/renv/articles/renv.html#collaboration) for a brief overview on collaboration and reproduction of the entire project.
 To get up and running from an established repository, you could do:
 
 ``` r

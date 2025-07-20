@@ -7,35 +7,16 @@ project:
   output-dir: docs
 
 website:
-  title: "MY PROJECT TITLE"
+  title: "RNAseq bacteria-nematode interactions"
   sidebar:
     style: "docked"
     background: light
     search: true
     contents:
-
-      - section: "1. First section of the analysis"
-        contents:
-          - text: "i) Step 1"
-            file: R/PATH/TO/QUARTO_NOTEBOOK.qmd
-          - text: "ii) Step 2"
-            file: R/PATH/TO/QUARTO_NOTEBOOK.qmd
-          - text: "iii) Step 3"
-            file: R/PATH/TO/QUARTO_NOTEBOOK.qmd
-      - section: "2. Second section of the analysis"
-        contents:
-          - text: "i) Step 1"
-            file: Py/YOU/CAN/ALSO/USE/JUPYTER_NOTEBOOK.ipynb
-          - text: "ii) Step 2"
-            file: Py/OR/JUST/PYTHON/WITH/QUARTO_NOTEBOOK.qmd
-      - section: "3. Third section of the analysis"
-        contents:
-          - text: "i) Step 1"
-            file: R/PATH/TO/QUARTO_NOTEBOOK.qmd
-          - text: "ii) Step 2"
-            file: R/PATH/TO/QUARTO_NOTEBOOK.qmd
-          - text: "iii) Step 3"
-            file: R/PATH/TO/QUARTO_NOTEBOOK.qmd
+      - text: "i) Formatting RNAseq counts"
+        file: R/01_read_format_featureCounts.qmd
+      - text: "ii) Analysis and plotting"
+        file: R/02_dge_function.qmd
    
 format:
   html:

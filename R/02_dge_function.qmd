@@ -1,0 +1,366 @@
+---
+title: "Functional analysis of differentially expressed genes"
+author: "Shane Hogle"
+date: today
+link-citations: true
+abstract: ""
+---
+
+# Setup
+
+## Libraries
+
+```{r}
+#| output: false
+#| warning: false
+#| error: false
+library(tidyverse)
+library(here)
+library(fs)
+library(ggVennDiagram)
+library(vegan)
+```
+
+
+# Read data
+
+Differentially expressed genes from last script
+
+```{r}
+dges <- read_tsv(here::here("data", "dgelist.tsv.xz"))
+```
+
+CPM expression matrix from last script
+
+```{r}
+cpm_combined <- read_tsv(here::here("data", "genes_cpm.tsv.xz"))
+```
+
+
+Annotations from eggnoggmapper
+
+```{r}
+annotations <- read_tsv(
+  here::here(
+    "_data_raw",
+    "eggnoggmapper",
+    "nanjingSynCom122_combined.emapper.annotations.xz"
+  ),
+  skip = 5,
+  col_names = c(
+    "query",
+    "seed_ortholog",
+    "evalue",
+    "score",
+    "eggNOG_OGs",
+    "max_annot_lvl",
+    "COG_category",
+    "Description",
+    "Preferred_name",
+    "GOs",
+    "EC",
+    "KEGG_ko",
+    "KEGG_Pathway",
+    "KEGG_Module",
+    "KEGG_Reaction",
+    "KEGG_rclass",
+    "BRITE",
+    "KEGG_TC",
+    "CAZy",
+    "BiGG_Reaction",
+    "PFAMs"
+  )
+)
+```
+
+# Fig. 5d: Ordination (PCA)
+
+```{r}
+cpm_combined_mat <- cpm_combined %>% 
+  data.frame() %>% 
+  column_to_rownames(var = "gene") %>% 
+  as.matrix()
+```
+
+Perform PCA - Note `vegan::rda()` when specified without a formula is just a PCA 
+
+```{r}
+set.seed(2378)
+pca_result <- vegan::rda(t(cpm_combined_mat), scale=TRUE)
+```
+
+```{r}
+summary(pca_result)
+```
+
+First 5 principal components explain about 64% of the variance in community expression
+
+```{r}
+# gets sample ordinations for the the PCA (unconstrained)
+pca_u <- data.frame(pca_result$CA$u) %>% 
+  tibble::rownames_to_column(var = "sample") %>% 
+  mutate(treat = case_when(str_detect(sample, "ZDCE") ~ "SC_N1",
+                           str_detect(sample, "ZDP") ~ "SC_N2",
+                           str_detect(sample, "ZDD") ~ "SC_N3",
+                           TRUE ~ "SC"))
+
+# save this in case colleagues want to plot it themselves
+write_tsv(pca_u, here::here("data", "pca_results.tsv"))
+```
+
+
+Plot the results
+
+::: {#fig-01}
+```{r}
+#| label: "Fig 5d"
+#| fig-width: 4
+#| fig-height: 4
+ggplot(pca_u, aes(x = PC1, y = PC2)) + 
+  # to prevent overlapping
+  geom_jitter(aes(fill = treat), alpha = 1, size = 3, shape = 21, width = 0.05, height = 0.05) +
+  labs(x = "PC1 (33%)", y = "PC2 (15%)", fill = "") +
+  coord_fixed() + 
+  theme_bw() +
+  theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank(),
+      strip.placement = 'outside',
+      strip.background = element_blank(),
+      legend.position = "bottom"
+    )
+```
+Projection of metranscriptomic samples and predator tretament variables along the first two Principal Component axes (PC1 = 32%, PC2 = 15% variation explained). The first five axes explain 64% of the total variation in bacterial transcript abundance. SC = synthetic bacteria community (SynCom) without predator, SC_N1 = SynCom with *Caenorhabditis elegans*, SC_N2 = SynCom with *Panagrolaimus* sp. NJ, SC_N3 = SynCom with *Distolabrellus veechi*. 
+:::
+
+This plot basically looks the earlier version where I didn't know how the analysis was performed (potentially not separated by species). However, there does seem to be some additional variability between the control replicates.
+
+# Fig. 5e: Up and down regulated genes 
+
+::: {#fig-02}
+```{r}
+#| label: "Fig 5e"
+#| fig-width: 6
+#| fig-height: 4
+dges %>% 
+  filter(comparison != "allN_versus_SC") %>% 
+  mutate(direction = factor(if_else(logFC < 0, "Down", "Up"), 
+                            levels = c("Up", "Down"))) %>% 
+  mutate(sps = factor(if_else(strainID %in% c("KLE1", "RAO1", "PAR1"), strainID, "Others"),
+                      levels = c("KLE1", "RAO1", "PAR1", "Others"))) %>% 
+  ggplot(aes(x = direction)) +
+  geom_bar(aes(fill = sps)) +
+  scale_fill_manual(values = c("orange", "limegreen", "dodgerblue", "grey80")) + 
+  labs(x = "", y = "Differentially expressed genes\nrelative to control (SC)",
+       fill = "Species") +
+  facet_grid(~comparison) +
+  theme_bw() + 
+  theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank(),
+      strip.placement = 'outside',
+      strip.background = element_blank(),
+      legend.position = "bottom"
+    )
+```
+Distribution of genes' transcripts with higher abundance ("Up")  or lower abundance ("Down") in predator treatments relative to the no-predator control. Bars are colored by the proportion of transcripts assigned to species/genome.
+:::
+
+There are some key similarities between the original plot and this one. Indeed, more genes' transcripts appear to be more over-expressed than under-expressed in the presence of predators than in the absence of predators. One could interpret this as reflecting that predators 'turn on' more bacterial genes than they 'turn off' which is consistent with prior work. However, here the taxonomic distribution of the expression seems less skewed towards the focal species than in the original analysis. I suspect this is because the original analysis did not account for the fact that RAO1 and KLE1 **DNA templates** dramatically increased in abundance in the predator treatments. By analyzing each species separately and then aggregating them, this analysis minimizes the effect of species abundance changes and so we get a more even taxonomic distribution.
+
+
+# Fig. 5f: Shared DGEs
+
+```{r}
+vennlist <- list(
+  SC_N1 = pull(filter(dges, comparison == "SCN1_versus_SC"), gene),
+  SC_N2 = pull(filter(dges, comparison == "SCN2_versus_SC"), gene),
+  SC_N3 = pull(filter(dges, comparison == "SCN3_versus_SC"), gene)
+)
+```
+
+::: {#fig-03}
+```{r}
+#| label: "Fig 5f"
+ggVennDiagram(vennlist) +
+  scale_fill_viridis_c(trans = "log10", breaks = c(3000, 5000, 10000, 25000, 50000))
+```
+Venn diagram showing the proportion of differentially expressed genes shared and unique to the three predator treatments. Color reflects the log-scaled count of genes unique or shared in each category, while the absolute number and proportion (%) is presented in text.
+:::
+
+Again some similarities and differences here relative to the original. We find about the same total number of genes shared between the three treatments. However, there are more genes unique to each than before, which is what I would expect. Also it appears that the N3 treatment is quite distinct meaning there are many differentially abundant transcripts responding uniquely to *Distolabrellus veechi* while bacterial respond more similarly to *Caenorhabditis elegans* and *Panagrolaimus* sp. NJ.
+
+Another thing that I did in the GLM from the last script was code the model contrasts so that we could focus on genes that are on average differentially abundant across the three predator species compared to the control. This approach should find the same genes at the center of the Venn diagram in Fig. 5f. 
+
+```{r}
+# subset genes that were differentially expressed in all three predator treatments
+genes_shared_3_worms <- dges %>% 
+  filter(comparison != "allN_versus_SC") %>% 
+  group_by(gene) %>% 
+  count(comparison) %>% 
+  filter(sum(n) == 3) %>% 
+  distinct(gene) %>% 
+  mutate(shared = "all_3")
+```
+
+
+```{r}
+dges %>% 
+  filter(comparison == "allN_versus_SC") %>% 
+  dplyr::select(gene, comparison) %>% 
+  distinct() %>% 
+  left_join(genes_shared_3_worms, by = join_by(gene)) %>% 
+  count(!is.na(comparison) & !is.na(shared))
+```
+Ok so this is performing how we would expect... My custom coded contrasts give about the same number of genes in the center of the Venn Diagram (12352 vs 12465) while it also identifies 32587 genes that were on average diffrentially expressed in response to a predator that are not shared in the Venn diagram. These 35587 genes will include those that are for example included in 2/3 predators or maybe even 1/3 predator treatments if the signal is strong enough.
+
+# Functional distributions
+
+Focusing on shared genes between all worms
+
+```{r}
+COG_info <- read_tsv(
+  "https://ftp.ncbi.nlm.nih.gov/pub/COG/COG2024/data/cog-24.fun.tab",
+  skip = 1,
+  col_names = c("COG_category", "group", "color", "COG_description")
+) %>%
+  filter(!(COG_category %in% c("1", "2", "3", "4"))) %>%
+  mutate(
+    group = case_when(
+      group == "1" ~ "Information storage and processing",
+      group == "2" ~ "Cellular processes and signaling",
+      group == "3" ~ "Metabolism",
+      group == "4" ~ "Poorly characterized"
+    )
+  ) %>%
+  mutate(
+    COG_description = if_else(COG_category == "X", color, COG_description),
+    color = if_else(COG_category == "X", NA_character_, color)
+  ) %>%
+  mutate(group = factor(
+    group,
+    levels = c(
+      "Information storage and processing",
+      "Cellular processes and signaling",
+      "Metabolism",
+      "Poorly characterized"
+    )
+  )) %>%
+  mutate(COG_category = factor(
+    COG_category,
+    levels = c("J", "A", "K", "L", "B", "D", "Y", "V", "T", "M", "N",
+      "Z", "W", "U", "O", "X", "C", "G", "E", "F", "H", "I", "P", "Q",
+      "R", "S"
+    )
+  ))
+```
+
+Get summary of the distribution of COGs
+
+```{r}
+genes_shared_3_worms_annotated <- inner_join(annotations, genes_shared_3_worms, by = join_by(query == gene)) %>% 
+  mutate(COG_category = if_else(COG_category == "-", "None", COG_category)) %>% 
+  inner_join(COG_info, by = join_by(COG_category))
+```
+
+::: {#fig-04}
+```{r}
+#| fig-width: 6
+#| fig-height: 4
+genes_shared_3_worms_annotated %>% 
+  count(group) %>% 
+  mutate(prop = n/sum(n)) %>% 
+  mutate(prop_chr = paste0(round(prop*100), "%")) %>% 
+  arrange(desc(group)) %>%
+  mutate(lab.ypos = cumsum(prop) - 0.5*prop) %>% 
+  ggplot(aes(x="", y=prop, fill=group)) +
+  geom_col(width = 1, color = "white") +
+  coord_polar("y", start=0) +
+  geom_text(aes(y = lab.ypos, label = prop_chr), color = "white")+
+  scale_fill_manual(values = c("#0073C2FF", "#EFC000FF", "#868686FF", "#CD534CFF")) +
+  theme_void()
+```
+Proportion of COG higher order groupings of all 10212 differentially expressed genes (with a single COG_category annotation) shared between all three predator treatments. 
+:::
+
+So we see basically that most DEGs fall into the COG "Metabolism" category. Now let's look at the detailed breakdown within these categories. Now we are focusing only on genes with >= 5 abs(logFC) so we need to go back a bit and do some formatting
+
+```{r}
+# this gets genes that have abs(logFC) > 5 on average across all three predator treatments
+meanFC_5 <- dges %>%
+  filter(comparison == "allN_versus_SC") %>% 
+  filter(abs(logFC) > 5)
+```
+
+```{r}
+# attaching to dges 
+genes_shared_3_worms_annotated_5filt <- inner_join(genes_shared_3_worms_annotated, meanFC_5, by = join_by(query == gene))
+```
+
+::: {#fig-05}
+```{r}
+#| fig-width: 7
+#| fig-height: 4
+genes_shared_3_worms_annotated_5filt %>% 
+  # remove poorly characterized/unknown functions
+  filter(group != "Poorly characterized") %>% 
+  mutate(sps = factor(if_else(strainID %in% c("KLE1", "RAO1", "PAR1"), strainID, "Others"),
+                      levels = c("KLE1", "RAO1", "PAR1", "Others"))) %>% 
+  ggplot(aes(x = fct_infreq(COG_category))) +
+  geom_bar(aes(fill = sps)) +
+  facet_wrap(~group, scales = "free_x", ncol = 4) +
+  scale_fill_manual(values = c("orange", "limegreen", "grey80")) +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  labs(x = "COG cateogry", y = "Differentially expressed genes\nrelative to control (SC)",
+       fill = "Species") +
+  theme_bw() + 
+  theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank(),
+      strip.placement = 'outside',
+      strip.background = element_blank(),
+      legend.position = "bottom"
+    )
+```
+Distribution of individual COG categories within the higher order COG groupings but only including differentially expressed genes with a log2 fold change >= 5 or <= -5. Color represents the species distribution in each COG category.
+:::
+
+Just focusing on "Metabolism"
+
+::: {#fig-06}
+```{r}
+#| fig-width: 5
+#| fig-height: 4
+genes_shared_3_worms_annotated_5filt %>% 
+  # remove poorly characterized/unknown functions
+  filter(group == "Metabolism") %>% 
+  mutate(sps = factor(if_else(strainID %in% c("KLE1", "RAO1", "PAR1"), strainID, "Others"),
+                      levels = c("KLE1", "RAO1", "PAR1", "Others"))) %>% 
+  ggplot(aes(x = fct_infreq(COG_category, ))) +
+  geom_bar(aes(fill = sps)) +
+  facet_wrap(~group) +
+  scale_fill_manual(values = c("orange", "limegreen", "grey80")) +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  labs(x = "COG cateogry", y = "Differentially expressed genes\nrelative to control (SC)",
+       fill = "Species") +
+  theme_bw() + 
+  theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank(),
+      strip.placement = 'outside',
+      strip.background = element_blank(),
+      legend.position = "bottom"
+    )
+```
+As in @fig-05 but focusing on "Metabolism." COG categories are: E - Amino acid transport and metabolism, C - Energy production and conversion, P - Inorganic ion transport and metabolism, G - Carbohydrate transport and metabolism, H - Coenzyme transport and metabolism, I - Lipid transport and metabolism, F - Nucleotide transport and metabolism, Q - Secondary metabolites biosynthesis, transport and catabolism.
+:::
+
+In agreement with the earlier analysis, I see a trend that differentially abundant genes are primarily associated with cellular metabolism - in particular, genes involved in Carbohydrate, Amino acid, and inorganic ion (e.g., trace metals) metabolism. 
+
+However, the earlier analysis noted that a large number of genes putatively involved in antibiotic biosynthesis were differentially regulated in response to predators, particularly in RAO1 and KLE1. I do not see that here. I annotated the RAO1 and KLE1 genomes using [antiSMASH](https://antismash.secondarymetabolites.org/#!/start). [Results for KLE1 are here](https://antismash.secondarymetabolites.org/upload/bacteria-d391b4c6-4482-4501-b6d0-39ec19fa8156/index.html#) and results for [RAO1 are here](https://antismash.secondarymetabolites.org/upload/bacteria-9bcd1ae6-e4d3-40b6-b397-9c631e3a9416/index.html#). In neither of these genomes do I see any obvious gene clusters related to antibiotic biosynthesis. In fact, neither of them have very many secondary metabolite genes at all. Thus, I am skeptical about Fig 3g that shows that almost 250 genes related to antibiotic biosynthesis are differentially regulated in KLE1 when KLE1 doesn't even have 25 genes related to secondary metabolite biosynthesis... This could be due to differences in how we annotated the genomes (I used a local installation of [eggnoggmapper](http://eggnog-mapper.embl.de/)), but I don't think annotation differences would produce this large of a discrepancy.
+
+More than likely this has to do with the fact that the prior analysis combined differential expression and differential template abundances into one aggregate finding. It is true that if KLE1 and RAO1 are more abundant in predator treatments but express antibiotic biosynthesis genes at the same level then the absolute antibiotic concentration might be higher in predator treatments... This is pure speculation though. But framing the discussion that these species upregulate or downregulate these pathways (i.e., a change in the per capita production of antibiotics) in resposne to predator is incorrect. 

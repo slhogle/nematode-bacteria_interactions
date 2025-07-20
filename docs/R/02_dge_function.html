@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Shane Hogle">
+<meta name="dcterms.date" content="2025-07-20">
+
+<title>Functional analysis of differentially expressed genes – RNAseq bacteria-nematode interactions</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-1f23bf93a17969024013c136d185e5ce.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+</head>
+
+<body class="nav-sidebar docked">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../R/02_dge_function.html">ii) Analysis and plotting</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">RNAseq bacteria-nematode interactions</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../R/01_read_format_featureCounts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">i) Formatting RNAseq counts</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../R/02_dge_function.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">ii) Analysis and plotting</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#setup" id="toc-setup" class="nav-link active" data-scroll-target="#setup"><span class="header-section-number">1</span> Setup</a>
+  <ul class="collapse">
+  <li><a href="#libraries" id="toc-libraries" class="nav-link" data-scroll-target="#libraries"><span class="header-section-number">1.1</span> Libraries</a></li>
+  </ul></li>
+  <li><a href="#read-data" id="toc-read-data" class="nav-link" data-scroll-target="#read-data"><span class="header-section-number">2</span> Read data</a></li>
+  <li><a href="#fig.-5d-ordination-pca" id="toc-fig.-5d-ordination-pca" class="nav-link" data-scroll-target="#fig.-5d-ordination-pca"><span class="header-section-number">3</span> Fig. 5d: Ordination (PCA)</a></li>
+  <li><a href="#fig.-5e-up-and-down-regulated-genes" id="toc-fig.-5e-up-and-down-regulated-genes" class="nav-link" data-scroll-target="#fig.-5e-up-and-down-regulated-genes"><span class="header-section-number">4</span> Fig. 5e: Up and down regulated genes</a></li>
+  <li><a href="#fig.-5f-shared-dges" id="toc-fig.-5f-shared-dges" class="nav-link" data-scroll-target="#fig.-5f-shared-dges"><span class="header-section-number">5</span> Fig. 5f: Shared DGEs</a></li>
+  <li><a href="#functional-distributions" id="toc-functional-distributions" class="nav-link" data-scroll-target="#functional-distributions"><span class="header-section-number">6</span> Functional distributions</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Functional analysis of differentially expressed genes</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Shane Hogle </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 20, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="setup" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Setup</h1>
+<section id="libraries" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="libraries"><span class="header-section-number">1.1</span> Libraries</h2>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">library</span>(fs)</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="fu">library</span>(ggVennDiagram)</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="fu">library</span>(vegan)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="read-data" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Read data</h1>
+<p>Differentially expressed genes from last script</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>dges <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"dgelist.tsv.xz"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 186215 Columns: 13
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: "\t"
+chr (5): strainID, gene, chromosome, strand, comparison
+dbl (8): start, end, length, logFC, logCPM, F, PValue, FDR
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<p>CPM expression matrix from last script</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>cpm_combined <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"genes_cpm.tsv.xz"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 208594 Columns: 13
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: "\t"
+chr  (1): gene
+dbl (12): ZDCK1, ZDCK2, ZDCK3, ZDCE1, ZDCE2, ZDCE3, ZDP1, ZDP2, ZDP3, ZDD1, ...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<p>Annotations from eggnoggmapper</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>annotations <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(</span>
+<span id="cb6-2"><a href="#cb6-2"></a>  here<span class="sc">::</span><span class="fu">here</span>(</span>
+<span id="cb6-3"><a href="#cb6-3"></a>    <span class="st">"_data_raw"</span>,</span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="st">"eggnoggmapper"</span>,</span>
+<span id="cb6-5"><a href="#cb6-5"></a>    <span class="st">"nanjingSynCom122_combined.emapper.annotations.xz"</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a>  ),</span>
+<span id="cb6-7"><a href="#cb6-7"></a>  <span class="at">skip =</span> <span class="dv">5</span>,</span>
+<span id="cb6-8"><a href="#cb6-8"></a>  <span class="at">col_names =</span> <span class="fu">c</span>(</span>
+<span id="cb6-9"><a href="#cb6-9"></a>    <span class="st">"query"</span>,</span>
+<span id="cb6-10"><a href="#cb6-10"></a>    <span class="st">"seed_ortholog"</span>,</span>
+<span id="cb6-11"><a href="#cb6-11"></a>    <span class="st">"evalue"</span>,</span>
+<span id="cb6-12"><a href="#cb6-12"></a>    <span class="st">"score"</span>,</span>
+<span id="cb6-13"><a href="#cb6-13"></a>    <span class="st">"eggNOG_OGs"</span>,</span>
+<span id="cb6-14"><a href="#cb6-14"></a>    <span class="st">"max_annot_lvl"</span>,</span>
+<span id="cb6-15"><a href="#cb6-15"></a>    <span class="st">"COG_category"</span>,</span>
+<span id="cb6-16"><a href="#cb6-16"></a>    <span class="st">"Description"</span>,</span>
+<span id="cb6-17"><a href="#cb6-17"></a>    <span class="st">"Preferred_name"</span>,</span>
+<span id="cb6-18"><a href="#cb6-18"></a>    <span class="st">"GOs"</span>,</span>
+<span id="cb6-19"><a href="#cb6-19"></a>    <span class="st">"EC"</span>,</span>
+<span id="cb6-20"><a href="#cb6-20"></a>    <span class="st">"KEGG_ko"</span>,</span>
+<span id="cb6-21"><a href="#cb6-21"></a>    <span class="st">"KEGG_Pathway"</span>,</span>
+<span id="cb6-22"><a href="#cb6-22"></a>    <span class="st">"KEGG_Module"</span>,</span>
+<span id="cb6-23"><a href="#cb6-23"></a>    <span class="st">"KEGG_Reaction"</span>,</span>
+<span id="cb6-24"><a href="#cb6-24"></a>    <span class="st">"KEGG_rclass"</span>,</span>
+<span id="cb6-25"><a href="#cb6-25"></a>    <span class="st">"BRITE"</span>,</span>
+<span id="cb6-26"><a href="#cb6-26"></a>    <span class="st">"KEGG_TC"</span>,</span>
+<span id="cb6-27"><a href="#cb6-27"></a>    <span class="st">"CAZy"</span>,</span>
+<span id="cb6-28"><a href="#cb6-28"></a>    <span class="st">"BiGG_Reaction"</span>,</span>
+<span id="cb6-29"><a href="#cb6-29"></a>    <span class="st">"PFAMs"</span></span>
+<span id="cb6-30"><a href="#cb6-30"></a>  )</span>
+<span id="cb6-31"><a href="#cb6-31"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat &lt;- vroom(...)
+  problems(dat)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 548626 Columns: 21
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: "\t"
+chr (19): query, seed_ortholog, eggNOG_OGs, max_annot_lvl, COG_category, Des...
+dbl  (2): evalue, score
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+</section>
+<section id="fig.-5d-ordination-pca" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Fig. 5d: Ordination (PCA)</h1>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>cpm_combined_mat <span class="ot">&lt;-</span> cpm_combined <span class="sc">%&gt;%</span> </span>
+<span id="cb9-2"><a href="#cb9-2"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb9-3"><a href="#cb9-3"></a>  <span class="fu">column_to_rownames</span>(<span class="at">var =</span> <span class="st">"gene"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-4"><a href="#cb9-4"></a>  <span class="fu">as.matrix</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Perform PCA - Note <code>vegan::rda()</code> when specified without a formula is just a PCA</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="fu">set.seed</span>(<span class="dv">2378</span>)</span>
+<span id="cb10-2"><a href="#cb10-2"></a>pca_result <span class="ot">&lt;-</span> vegan<span class="sc">::</span><span class="fu">rda</span>(<span class="fu">t</span>(cpm_combined_mat), <span class="at">scale=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">summary</span>(pca_result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+rda(X = t(cpm_combined_mat), scale = TRUE) 
+
+Partitioning of correlations:
+              Inertia Proportion
+Total          208594          1
+Unconstrained  208594          1
+
+Eigenvalues, and their contribution to the correlations 
+
+Importance of components:
+                            PC1       PC2       PC3       PC4       PC5
+Eigenvalue            68424.952 3.221e+04 2.129e+04 1.593e+04 1.335e+04
+Proportion Explained      0.328 1.544e-01 1.020e-01 7.635e-02 6.401e-02
+Cumulative Proportion     0.328 4.824e-01 5.845e-01 6.608e-01 7.248e-01
+                            PC6       PC7       PC8       PC9      PC10
+Eigenvalue            1.167e+04 1.050e+04 9.582e+03 9.385e+03 8.243e+03
+Proportion Explained  5.595e-02 5.032e-02 4.593e-02 4.499e-02 3.952e-02
+Cumulative Proportion 7.808e-01 8.311e-01 8.770e-01 9.220e-01 9.615e-01
+                           PC11
+Eigenvalue            8.022e+03
+Proportion Explained  3.846e-02
+Cumulative Proportion 1.000e+00</code></pre>
+</div>
+</div>
+<p>First 5 principal components explain about 64% of the variance in community expression</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># gets sample ordinations for the the PCA (unconstrained)</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a>pca_u <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(pca_result<span class="sc">$</span>CA<span class="sc">$</span>u) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-3"><a href="#cb13-3"></a>  tibble<span class="sc">::</span><span class="fu">rownames_to_column</span>(<span class="at">var =</span> <span class="st">"sample"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-4"><a href="#cb13-4"></a>  <span class="fu">mutate</span>(<span class="at">treat =</span> <span class="fu">case_when</span>(<span class="fu">str_detect</span>(sample, <span class="st">"ZDCE"</span>) <span class="sc">~</span> <span class="st">"SC_N1"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5"></a>                           <span class="fu">str_detect</span>(sample, <span class="st">"ZDP"</span>) <span class="sc">~</span> <span class="st">"SC_N2"</span>,</span>
+<span id="cb13-6"><a href="#cb13-6"></a>                           <span class="fu">str_detect</span>(sample, <span class="st">"ZDD"</span>) <span class="sc">~</span> <span class="st">"SC_N3"</span>,</span>
+<span id="cb13-7"><a href="#cb13-7"></a>                           <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"SC"</span>))</span>
+<span id="cb13-8"><a href="#cb13-8"></a></span>
+<span id="cb13-9"><a href="#cb13-9"></a><span class="co"># save this in case colleagues want to plot it themselves</span></span>
+<span id="cb13-10"><a href="#cb13-10"></a><span class="fu">write_tsv</span>(pca_u, here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"pca_results.tsv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Plot the results</p>
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="fu">ggplot</span>(pca_u, <span class="fu">aes</span>(<span class="at">x =</span> PC1, <span class="at">y =</span> PC2)) <span class="sc">+</span> </span>
+<span id="cb14-2"><a href="#cb14-2"></a>  <span class="co"># to prevent overlapping</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">fill =</span> treat), <span class="at">alpha =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">width =</span> <span class="fl">0.05</span>, <span class="at">height =</span> <span class="fl">0.05</span>) <span class="sc">+</span></span>
+<span id="cb14-4"><a href="#cb14-4"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"PC1 (33%)"</span>, <span class="at">y =</span> <span class="st">"PC2 (15%)"</span>, <span class="at">fill =</span> <span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb14-5"><a href="#cb14-5"></a>  <span class="fu">coord_fixed</span>() <span class="sc">+</span> </span>
+<span id="cb14-6"><a href="#cb14-6"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb14-7"><a href="#cb14-7"></a>  <span class="fu">theme</span>(</span>
+<span id="cb14-8"><a href="#cb14-8"></a>      <span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb14-9"><a href="#cb14-9"></a>      <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb14-10"><a href="#cb14-10"></a>      <span class="at">panel.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb14-11"><a href="#cb14-11"></a>      <span class="at">strip.placement =</span> <span class="st">'outside'</span>,</span>
+<span id="cb14-12"><a href="#cb14-12"></a>      <span class="at">strip.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb14-13"><a href="#cb14-13"></a>      <span class="at">legend.position =</span> <span class="st">"bottom"</span></span>
+<span id="cb14-14"><a href="#cb14-14"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="fig-01" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-01-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_dge_function_files/figure-html/Fig 5d-1.png" class="img-fluid figure-img" width="384"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-01-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Projection of metranscriptomic samples and predator tretament variables along the first two Principal Component axes (PC1 = 32%, PC2 = 15% variation explained). The first five axes explain 64% of the total variation in bacterial transcript abundance. SC = synthetic bacteria community (SynCom) without predator, SC_N1 = SynCom with <em>Caenorhabditis elegans</em>, SC_N2 = SynCom with <em>Panagrolaimus</em> sp. NJ, SC_N3 = SynCom with <em>Distolabrellus veechi</em>.
+</figcaption>
+</figure>
+</div>
+<p>This plot basically looks the earlier version where I didn’t know how the analysis was performed (potentially not separated by species). However, there does seem to be some additional variability between the control replicates.</p>
+</section>
+<section id="fig.-5e-up-and-down-regulated-genes" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Fig. 5e: Up and down regulated genes</h1>
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>dges <span class="sc">%&gt;%</span> </span>
+<span id="cb15-2"><a href="#cb15-2"></a>  <span class="fu">filter</span>(comparison <span class="sc">!=</span> <span class="st">"allN_versus_SC"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-3"><a href="#cb15-3"></a>  <span class="fu">mutate</span>(<span class="at">direction =</span> <span class="fu">factor</span>(<span class="fu">if_else</span>(logFC <span class="sc">&lt;</span> <span class="dv">0</span>, <span class="st">"Down"</span>, <span class="st">"Up"</span>), </span>
+<span id="cb15-4"><a href="#cb15-4"></a>                            <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Up"</span>, <span class="st">"Down"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-5"><a href="#cb15-5"></a>  <span class="fu">mutate</span>(<span class="at">sps =</span> <span class="fu">factor</span>(<span class="fu">if_else</span>(strainID <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"KLE1"</span>, <span class="st">"RAO1"</span>, <span class="st">"PAR1"</span>), strainID, <span class="st">"Others"</span>),</span>
+<span id="cb15-6"><a href="#cb15-6"></a>                      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"KLE1"</span>, <span class="st">"RAO1"</span>, <span class="st">"PAR1"</span>, <span class="st">"Others"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-7"><a href="#cb15-7"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> direction)) <span class="sc">+</span></span>
+<span id="cb15-8"><a href="#cb15-8"></a>  <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> sps)) <span class="sc">+</span></span>
+<span id="cb15-9"><a href="#cb15-9"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"orange"</span>, <span class="st">"limegreen"</span>, <span class="st">"dodgerblue"</span>, <span class="st">"grey80"</span>)) <span class="sc">+</span> </span>
+<span id="cb15-10"><a href="#cb15-10"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">""</span>, <span class="at">y =</span> <span class="st">"Differentially expressed genes</span><span class="sc">\n</span><span class="st">relative to control (SC)"</span>,</span>
+<span id="cb15-11"><a href="#cb15-11"></a>       <span class="at">fill =</span> <span class="st">"Species"</span>) <span class="sc">+</span></span>
+<span id="cb15-12"><a href="#cb15-12"></a>  <span class="fu">facet_grid</span>(<span class="sc">~</span>comparison) <span class="sc">+</span></span>
+<span id="cb15-13"><a href="#cb15-13"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb15-14"><a href="#cb15-14"></a>  <span class="fu">theme</span>(</span>
+<span id="cb15-15"><a href="#cb15-15"></a>      <span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb15-16"><a href="#cb15-16"></a>      <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb15-17"><a href="#cb15-17"></a>      <span class="at">panel.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb15-18"><a href="#cb15-18"></a>      <span class="at">strip.placement =</span> <span class="st">'outside'</span>,</span>
+<span id="cb15-19"><a href="#cb15-19"></a>      <span class="at">strip.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb15-20"><a href="#cb15-20"></a>      <span class="at">legend.position =</span> <span class="st">"bottom"</span></span>
+<span id="cb15-21"><a href="#cb15-21"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="fig-02" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-02-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_dge_function_files/figure-html/Fig 5e-1.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-02-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Distribution of genes’ transcripts with higher abundance (“Up”) or lower abundance (“Down”) in predator treatments relative to the no-predator control. Bars are colored by the proportion of transcripts assigned to species/genome.
+</figcaption>
+</figure>
+</div>
+<p>There are some key similarities between the original plot and this one. Indeed, more genes’ transcripts appear to be more over-expressed than under-expressed in the presence of predators than in the absence of predators. One could interpret this as reflecting that predators ‘turn on’ more bacterial genes than they ‘turn off’ which is consistent with prior work. However, here the taxonomic distribution of the expression seems less skewed towards the focal species than in the original analysis. I suspect this is because the original analysis did not account for the fact that RAO1 and KLE1 <strong>DNA templates</strong> dramatically increased in abundance in the predator treatments. By analyzing each species separately and then aggregating them, this analysis minimizes the effect of species abundance changes and so we get a more even taxonomic distribution.</p>
+</section>
+<section id="fig.-5f-shared-dges" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Fig. 5f: Shared DGEs</h1>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>vennlist <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb16-2"><a href="#cb16-2"></a>  <span class="at">SC_N1 =</span> <span class="fu">pull</span>(<span class="fu">filter</span>(dges, comparison <span class="sc">==</span> <span class="st">"SCN1_versus_SC"</span>), gene),</span>
+<span id="cb16-3"><a href="#cb16-3"></a>  <span class="at">SC_N2 =</span> <span class="fu">pull</span>(<span class="fu">filter</span>(dges, comparison <span class="sc">==</span> <span class="st">"SCN2_versus_SC"</span>), gene),</span>
+<span id="cb16-4"><a href="#cb16-4"></a>  <span class="at">SC_N3 =</span> <span class="fu">pull</span>(<span class="fu">filter</span>(dges, comparison <span class="sc">==</span> <span class="st">"SCN3_versus_SC"</span>), gene)</span>
+<span id="cb16-5"><a href="#cb16-5"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="fu">ggVennDiagram</span>(vennlist) <span class="sc">+</span></span>
+<span id="cb17-2"><a href="#cb17-2"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">trans =</span> <span class="st">"log10"</span>, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">3000</span>, <span class="dv">5000</span>, <span class="dv">10000</span>, <span class="dv">25000</span>, <span class="dv">50000</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="fig-03" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-03-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_dge_function_files/figure-html/Fig 5f-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-03-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Venn diagram showing the proportion of differentially expressed genes shared and unique to the three predator treatments. Color reflects the log-scaled count of genes unique or shared in each category, while the absolute number and proportion (%) is presented in text.
+</figcaption>
+</figure>
+</div>
+<p>Again some similarities and differences here relative to the original. We find about the same total number of genes shared between the three treatments. However, there are more genes unique to each than before, which is what I would expect. Also it appears that the N3 treatment is quite distinct meaning there are many differentially abundant transcripts responding uniquely to <em>Distolabrellus veechi</em> while bacterial respond more similarly to <em>Caenorhabditis elegans</em> and <em>Panagrolaimus</em> sp. NJ.</p>
+<p>Another thing that I did in the GLM from the last script was code the model contrasts so that we could focus on genes that are on average differentially abundant across the three predator species compared to the control. This approach should find the same genes at the center of the Venn diagram in Fig. 5f.</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="co"># subset genes that were differentially expressed in all three predator treatments</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a>genes_shared_3_worms <span class="ot">&lt;-</span> dges <span class="sc">%&gt;%</span> </span>
+<span id="cb18-3"><a href="#cb18-3"></a>  <span class="fu">filter</span>(comparison <span class="sc">!=</span> <span class="st">"allN_versus_SC"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-4"><a href="#cb18-4"></a>  <span class="fu">group_by</span>(gene) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-5"><a href="#cb18-5"></a>  <span class="fu">count</span>(comparison) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-6"><a href="#cb18-6"></a>  <span class="fu">filter</span>(<span class="fu">sum</span>(n) <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-7"><a href="#cb18-7"></a>  <span class="fu">distinct</span>(gene) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-8"><a href="#cb18-8"></a>  <span class="fu">mutate</span>(<span class="at">shared =</span> <span class="st">"all_3"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>dges <span class="sc">%&gt;%</span> </span>
+<span id="cb19-2"><a href="#cb19-2"></a>  <span class="fu">filter</span>(comparison <span class="sc">==</span> <span class="st">"allN_versus_SC"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-3"><a href="#cb19-3"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(gene, comparison) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-4"><a href="#cb19-4"></a>  <span class="fu">distinct</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb19-5"><a href="#cb19-5"></a>  <span class="fu">left_join</span>(genes_shared_3_worms, <span class="at">by =</span> <span class="fu">join_by</span>(gene)) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-6"><a href="#cb19-6"></a>  <span class="fu">count</span>(<span class="sc">!</span><span class="fu">is.na</span>(comparison) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(shared))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["!is.na(comparison) & !is.na(shared)"],"name":[1],"type":["lgl"],"align":["right"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"FALSE","2":"32587"},{"1":"TRUE","2":"12352"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Ok so this is performing how we would expect… My custom coded contrasts give about the same number of genes in the center of the Venn Diagram (12352 vs 12465) while it also identifies 32587 genes that were on average diffrentially expressed in response to a predator that are not shared in the Venn diagram. These 35587 genes will include those that are for example included in 2/3 predators or maybe even 1/3 predator treatments if the signal is strong enough.</p>
+</section>
+<section id="functional-distributions" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Functional distributions</h1>
+<p>Focusing on shared genes between all worms</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>COG_info <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(</span>
+<span id="cb20-2"><a href="#cb20-2"></a>  <span class="st">"https://ftp.ncbi.nlm.nih.gov/pub/COG/COG2024/data/cog-24.fun.tab"</span>,</span>
+<span id="cb20-3"><a href="#cb20-3"></a>  <span class="at">skip =</span> <span class="dv">1</span>,</span>
+<span id="cb20-4"><a href="#cb20-4"></a>  <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">"COG_category"</span>, <span class="st">"group"</span>, <span class="st">"color"</span>, <span class="st">"COG_description"</span>)</span>
+<span id="cb20-5"><a href="#cb20-5"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-6"><a href="#cb20-6"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(COG_category <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"3"</span>, <span class="st">"4"</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb20-7"><a href="#cb20-7"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb20-8"><a href="#cb20-8"></a>    <span class="at">group =</span> <span class="fu">case_when</span>(</span>
+<span id="cb20-9"><a href="#cb20-9"></a>      group <span class="sc">==</span> <span class="st">"1"</span> <span class="sc">~</span> <span class="st">"Information storage and processing"</span>,</span>
+<span id="cb20-10"><a href="#cb20-10"></a>      group <span class="sc">==</span> <span class="st">"2"</span> <span class="sc">~</span> <span class="st">"Cellular processes and signaling"</span>,</span>
+<span id="cb20-11"><a href="#cb20-11"></a>      group <span class="sc">==</span> <span class="st">"3"</span> <span class="sc">~</span> <span class="st">"Metabolism"</span>,</span>
+<span id="cb20-12"><a href="#cb20-12"></a>      group <span class="sc">==</span> <span class="st">"4"</span> <span class="sc">~</span> <span class="st">"Poorly characterized"</span></span>
+<span id="cb20-13"><a href="#cb20-13"></a>    )</span>
+<span id="cb20-14"><a href="#cb20-14"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb20-15"><a href="#cb20-15"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb20-16"><a href="#cb20-16"></a>    <span class="at">COG_description =</span> <span class="fu">if_else</span>(COG_category <span class="sc">==</span> <span class="st">"X"</span>, color, COG_description),</span>
+<span id="cb20-17"><a href="#cb20-17"></a>    <span class="at">color =</span> <span class="fu">if_else</span>(COG_category <span class="sc">==</span> <span class="st">"X"</span>, <span class="cn">NA_character_</span>, color)</span>
+<span id="cb20-18"><a href="#cb20-18"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb20-19"><a href="#cb20-19"></a>  <span class="fu">mutate</span>(<span class="at">group =</span> <span class="fu">factor</span>(</span>
+<span id="cb20-20"><a href="#cb20-20"></a>    group,</span>
+<span id="cb20-21"><a href="#cb20-21"></a>    <span class="at">levels =</span> <span class="fu">c</span>(</span>
+<span id="cb20-22"><a href="#cb20-22"></a>      <span class="st">"Information storage and processing"</span>,</span>
+<span id="cb20-23"><a href="#cb20-23"></a>      <span class="st">"Cellular processes and signaling"</span>,</span>
+<span id="cb20-24"><a href="#cb20-24"></a>      <span class="st">"Metabolism"</span>,</span>
+<span id="cb20-25"><a href="#cb20-25"></a>      <span class="st">"Poorly characterized"</span></span>
+<span id="cb20-26"><a href="#cb20-26"></a>    )</span>
+<span id="cb20-27"><a href="#cb20-27"></a>  )) <span class="sc">%&gt;%</span></span>
+<span id="cb20-28"><a href="#cb20-28"></a>  <span class="fu">mutate</span>(<span class="at">COG_category =</span> <span class="fu">factor</span>(</span>
+<span id="cb20-29"><a href="#cb20-29"></a>    COG_category,</span>
+<span id="cb20-30"><a href="#cb20-30"></a>    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"J"</span>, <span class="st">"A"</span>, <span class="st">"K"</span>, <span class="st">"L"</span>, <span class="st">"B"</span>, <span class="st">"D"</span>, <span class="st">"Y"</span>, <span class="st">"V"</span>, <span class="st">"T"</span>, <span class="st">"M"</span>, <span class="st">"N"</span>,</span>
+<span id="cb20-31"><a href="#cb20-31"></a>      <span class="st">"Z"</span>, <span class="st">"W"</span>, <span class="st">"U"</span>, <span class="st">"O"</span>, <span class="st">"X"</span>, <span class="st">"C"</span>, <span class="st">"G"</span>, <span class="st">"E"</span>, <span class="st">"F"</span>, <span class="st">"H"</span>, <span class="st">"I"</span>, <span class="st">"P"</span>, <span class="st">"Q"</span>,</span>
+<span id="cb20-32"><a href="#cb20-32"></a>      <span class="st">"R"</span>, <span class="st">"S"</span></span>
+<span id="cb20-33"><a href="#cb20-33"></a>    )</span>
+<span id="cb20-34"><a href="#cb20-34"></a>  ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat &lt;- vroom(...)
+  problems(dat)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 29 Columns: 4
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: "\t"
+chr (4): COG_category, group, color, COG_description
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<p>Get summary of the distribution of COGs</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>genes_shared_3_worms_annotated <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(annotations, genes_shared_3_worms, <span class="at">by =</span> <span class="fu">join_by</span>(query <span class="sc">==</span> gene)) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-2"><a href="#cb23-2"></a>  <span class="fu">mutate</span>(<span class="at">COG_category =</span> <span class="fu">if_else</span>(COG_category <span class="sc">==</span> <span class="st">"-"</span>, <span class="st">"None"</span>, COG_category)) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-3"><a href="#cb23-3"></a>  <span class="fu">inner_join</span>(COG_info, <span class="at">by =</span> <span class="fu">join_by</span>(COG_category))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>genes_shared_3_worms_annotated <span class="sc">%&gt;%</span> </span>
+<span id="cb24-2"><a href="#cb24-2"></a>  <span class="fu">count</span>(group) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-3"><a href="#cb24-3"></a>  <span class="fu">mutate</span>(<span class="at">prop =</span> n<span class="sc">/</span><span class="fu">sum</span>(n)) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-4"><a href="#cb24-4"></a>  <span class="fu">mutate</span>(<span class="at">prop_chr =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(prop<span class="sc">*</span><span class="dv">100</span>), <span class="st">"%"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-5"><a href="#cb24-5"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(group)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-6"><a href="#cb24-6"></a>  <span class="fu">mutate</span>(<span class="at">lab.ypos =</span> <span class="fu">cumsum</span>(prop) <span class="sc">-</span> <span class="fl">0.5</span><span class="sc">*</span>prop) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-7"><a href="#cb24-7"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span><span class="st">""</span>, <span class="at">y=</span>prop, <span class="at">fill=</span>group)) <span class="sc">+</span></span>
+<span id="cb24-8"><a href="#cb24-8"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb24-9"><a href="#cb24-9"></a>  <span class="fu">coord_polar</span>(<span class="st">"y"</span>, <span class="at">start=</span><span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb24-10"><a href="#cb24-10"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">y =</span> lab.ypos, <span class="at">label =</span> prop_chr), <span class="at">color =</span> <span class="st">"white"</span>)<span class="sc">+</span></span>
+<span id="cb24-11"><a href="#cb24-11"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#0073C2FF"</span>, <span class="st">"#EFC000FF"</span>, <span class="st">"#868686FF"</span>, <span class="st">"#CD534CFF"</span>)) <span class="sc">+</span></span>
+<span id="cb24-12"><a href="#cb24-12"></a>  <span class="fu">theme_void</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="fig-04" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-04-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_dge_function_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-04-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Proportion of COG higher order groupings of all 10212 differentially expressed genes (with a single COG_category annotation) shared between all three predator treatments.
+</figcaption>
+</figure>
+</div>
+<p>So we see basically that most DEGs fall into the COG “Metabolism” category. Now let’s look at the detailed breakdown within these categories. Now we are focusing only on genes with &gt;= 5 abs(logFC) so we need to go back a bit and do some formatting</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="co"># this gets genes that have abs(logFC) &gt; 5 on average across all three predator treatments</span></span>
+<span id="cb25-2"><a href="#cb25-2"></a>meanFC_5 <span class="ot">&lt;-</span> dges <span class="sc">%&gt;%</span></span>
+<span id="cb25-3"><a href="#cb25-3"></a>  <span class="fu">filter</span>(comparison <span class="sc">==</span> <span class="st">"allN_versus_SC"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb25-4"><a href="#cb25-4"></a>  <span class="fu">filter</span>(<span class="fu">abs</span>(logFC) <span class="sc">&gt;</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="co"># attaching to dges </span></span>
+<span id="cb26-2"><a href="#cb26-2"></a>genes_shared_3_worms_annotated_5filt <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(genes_shared_3_worms_annotated, meanFC_5, <span class="at">by =</span> <span class="fu">join_by</span>(query <span class="sc">==</span> gene))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>genes_shared_3_worms_annotated_5filt <span class="sc">%&gt;%</span> </span>
+<span id="cb27-2"><a href="#cb27-2"></a>  <span class="co"># remove poorly characterized/unknown functions</span></span>
+<span id="cb27-3"><a href="#cb27-3"></a>  <span class="fu">filter</span>(group <span class="sc">!=</span> <span class="st">"Poorly characterized"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb27-4"><a href="#cb27-4"></a>  <span class="fu">mutate</span>(<span class="at">sps =</span> <span class="fu">factor</span>(<span class="fu">if_else</span>(strainID <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"KLE1"</span>, <span class="st">"RAO1"</span>, <span class="st">"PAR1"</span>), strainID, <span class="st">"Others"</span>),</span>
+<span id="cb27-5"><a href="#cb27-5"></a>                      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"KLE1"</span>, <span class="st">"RAO1"</span>, <span class="st">"PAR1"</span>, <span class="st">"Others"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb27-6"><a href="#cb27-6"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">fct_infreq</span>(COG_category))) <span class="sc">+</span></span>
+<span id="cb27-7"><a href="#cb27-7"></a>  <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> sps)) <span class="sc">+</span></span>
+<span id="cb27-8"><a href="#cb27-8"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>group, <span class="at">scales =</span> <span class="st">"free_x"</span>, <span class="at">ncol =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb27-9"><a href="#cb27-9"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"orange"</span>, <span class="st">"limegreen"</span>, <span class="st">"grey80"</span>)) <span class="sc">+</span></span>
+<span id="cb27-10"><a href="#cb27-10"></a>  <span class="fu">scale_x_discrete</span>(<span class="at">guide =</span> <span class="fu">guide_axis</span>(<span class="at">angle =</span> <span class="dv">90</span>)) <span class="sc">+</span></span>
+<span id="cb27-11"><a href="#cb27-11"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"COG cateogry"</span>, <span class="at">y =</span> <span class="st">"Differentially expressed genes</span><span class="sc">\n</span><span class="st">relative to control (SC)"</span>,</span>
+<span id="cb27-12"><a href="#cb27-12"></a>       <span class="at">fill =</span> <span class="st">"Species"</span>) <span class="sc">+</span></span>
+<span id="cb27-13"><a href="#cb27-13"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb27-14"><a href="#cb27-14"></a>  <span class="fu">theme</span>(</span>
+<span id="cb27-15"><a href="#cb27-15"></a>      <span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb27-16"><a href="#cb27-16"></a>      <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb27-17"><a href="#cb27-17"></a>      <span class="at">panel.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb27-18"><a href="#cb27-18"></a>      <span class="at">strip.placement =</span> <span class="st">'outside'</span>,</span>
+<span id="cb27-19"><a href="#cb27-19"></a>      <span class="at">strip.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb27-20"><a href="#cb27-20"></a>      <span class="at">legend.position =</span> <span class="st">"bottom"</span></span>
+<span id="cb27-21"><a href="#cb27-21"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="fig-05" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-05-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_dge_function_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-05-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Distribution of individual COG categories within the higher order COG groupings but only including differentially expressed genes with a log2 fold change &gt;= 5 or &lt;= -5. Color represents the species distribution in each COG category.
+</figcaption>
+</figure>
+</div>
+<p>Just focusing on “Metabolism”</p>
+<details open="" class="code-fold">
+<summary>Show/hide code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>genes_shared_3_worms_annotated_5filt <span class="sc">%&gt;%</span> </span>
+<span id="cb28-2"><a href="#cb28-2"></a>  <span class="co"># remove poorly characterized/unknown functions</span></span>
+<span id="cb28-3"><a href="#cb28-3"></a>  <span class="fu">filter</span>(group <span class="sc">==</span> <span class="st">"Metabolism"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb28-4"><a href="#cb28-4"></a>  <span class="fu">mutate</span>(<span class="at">sps =</span> <span class="fu">factor</span>(<span class="fu">if_else</span>(strainID <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"KLE1"</span>, <span class="st">"RAO1"</span>, <span class="st">"PAR1"</span>), strainID, <span class="st">"Others"</span>),</span>
+<span id="cb28-5"><a href="#cb28-5"></a>                      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"KLE1"</span>, <span class="st">"RAO1"</span>, <span class="st">"PAR1"</span>, <span class="st">"Others"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb28-6"><a href="#cb28-6"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">fct_infreq</span>(COG_category, ))) <span class="sc">+</span></span>
+<span id="cb28-7"><a href="#cb28-7"></a>  <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> sps)) <span class="sc">+</span></span>
+<span id="cb28-8"><a href="#cb28-8"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>group) <span class="sc">+</span></span>
+<span id="cb28-9"><a href="#cb28-9"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"orange"</span>, <span class="st">"limegreen"</span>, <span class="st">"grey80"</span>)) <span class="sc">+</span></span>
+<span id="cb28-10"><a href="#cb28-10"></a>  <span class="fu">scale_x_discrete</span>(<span class="at">guide =</span> <span class="fu">guide_axis</span>(<span class="at">angle =</span> <span class="dv">90</span>)) <span class="sc">+</span></span>
+<span id="cb28-11"><a href="#cb28-11"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"COG cateogry"</span>, <span class="at">y =</span> <span class="st">"Differentially expressed genes</span><span class="sc">\n</span><span class="st">relative to control (SC)"</span>,</span>
+<span id="cb28-12"><a href="#cb28-12"></a>       <span class="at">fill =</span> <span class="st">"Species"</span>) <span class="sc">+</span></span>
+<span id="cb28-13"><a href="#cb28-13"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb28-14"><a href="#cb28-14"></a>  <span class="fu">theme</span>(</span>
+<span id="cb28-15"><a href="#cb28-15"></a>      <span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb28-16"><a href="#cb28-16"></a>      <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb28-17"><a href="#cb28-17"></a>      <span class="at">panel.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb28-18"><a href="#cb28-18"></a>      <span class="at">strip.placement =</span> <span class="st">'outside'</span>,</span>
+<span id="cb28-19"><a href="#cb28-19"></a>      <span class="at">strip.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb28-20"><a href="#cb28-20"></a>      <span class="at">legend.position =</span> <span class="st">"bottom"</span></span>
+<span id="cb28-21"><a href="#cb28-21"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="fig-06" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-06-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_dge_function_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="480"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-06-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: As in <a href="#fig-05" class="quarto-xref">Figure&nbsp;5</a> but focusing on “Metabolism.” COG categories are: E - Amino acid transport and metabolism, C - Energy production and conversion, P - Inorganic ion transport and metabolism, G - Carbohydrate transport and metabolism, H - Coenzyme transport and metabolism, I - Lipid transport and metabolism, F - Nucleotide transport and metabolism, Q - Secondary metabolites biosynthesis, transport and catabolism.
+</figcaption>
+</figure>
+</div>
+<p>In agreement with the earlier analysis, I see a trend that differentially abundant genes are primarily associated with cellular metabolism - in particular, genes involved in Carbohydrate, Amino acid, and inorganic ion (e.g., trace metals) metabolism.</p>
+<p>However, the earlier analysis noted that a large number of genes putatively involved in antibiotic biosynthesis were differentially regulated in response to predators, particularly in RAO1 and KLE1. I do not see that here. I annotated the RAO1 and KLE1 genomes using <a href="https://antismash.secondarymetabolites.org/#!/start">antiSMASH</a>. <a href="https://antismash.secondarymetabolites.org/upload/bacteria-d391b4c6-4482-4501-b6d0-39ec19fa8156/index.html#">Results for KLE1 are here</a> and results for <a href="https://antismash.secondarymetabolites.org/upload/bacteria-9bcd1ae6-e4d3-40b6-b397-9c631e3a9416/index.html#">RAO1 are here</a>. In neither of these genomes do I see any obvious gene clusters related to antibiotic biosynthesis. In fact, neither of them have very many secondary metabolite genes at all. Thus, I am skeptical about Fig 3g that shows that almost 250 genes related to antibiotic biosynthesis are differentially regulated in KLE1 when KLE1 doesn’t even have 25 genes related to secondary metabolite biosynthesis… This could be due to differences in how we annotated the genomes (I used a local installation of <a href="http://eggnog-mapper.embl.de/">eggnoggmapper</a>), but I don’t think annotation differences would produce this large of a discrepancy.</p>
+<p>More than likely this has to do with the fact that the prior analysis combined differential expression and differential template abundances into one aggregate finding. It is true that if KLE1 and RAO1 are more abundant in predator treatments but express antibiotic biosynthesis genes at the same level then the absolute antibiotic concentration might be higher in predator treatments… This is pure speculation though. But framing the discussion that these species upregulate or downregulate these pathways (i.e., a change in the per capita production of antibiotics) in resposne to predator is incorrect.</p>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb29" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb29-1"><a href="#cb29-1"></a><span class="co">---</span></span>
+<span id="cb29-2"><a href="#cb29-2"></a><span class="an">title:</span><span class="co"> "Functional analysis of differentially expressed genes"</span></span>
+<span id="cb29-3"><a href="#cb29-3"></a><span class="an">author:</span><span class="co"> "Shane Hogle"</span></span>
+<span id="cb29-4"><a href="#cb29-4"></a><span class="an">date:</span><span class="co"> today</span></span>
+<span id="cb29-5"><a href="#cb29-5"></a><span class="an">link-citations:</span><span class="co"> true</span></span>
+<span id="cb29-6"><a href="#cb29-6"></a><span class="an">abstract:</span><span class="co"> ""</span></span>
+<span id="cb29-7"><a href="#cb29-7"></a><span class="co">---</span></span>
+<span id="cb29-8"><a href="#cb29-8"></a></span>
+<span id="cb29-9"><a href="#cb29-9"></a><span class="fu"># Setup</span></span>
+<span id="cb29-10"><a href="#cb29-10"></a></span>
+<span id="cb29-11"><a href="#cb29-11"></a><span class="fu">## Libraries</span></span>
+<span id="cb29-12"><a href="#cb29-12"></a></span>
+<span id="cb29-15"><a href="#cb29-15"></a><span class="in">```{r}</span></span>
+<span id="cb29-16"><a href="#cb29-16"></a><span class="co">#| output: false</span></span>
+<span id="cb29-17"><a href="#cb29-17"></a><span class="co">#| warning: false</span></span>
+<span id="cb29-18"><a href="#cb29-18"></a><span class="co">#| error: false</span></span>
+<span id="cb29-19"><a href="#cb29-19"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb29-20"><a href="#cb29-20"></a><span class="fu">library</span>(here)</span>
+<span id="cb29-21"><a href="#cb29-21"></a><span class="fu">library</span>(fs)</span>
+<span id="cb29-22"><a href="#cb29-22"></a><span class="fu">library</span>(ggVennDiagram)</span>
+<span id="cb29-23"><a href="#cb29-23"></a><span class="fu">library</span>(vegan)</span>
+<span id="cb29-24"><a href="#cb29-24"></a><span class="in">```</span></span>
+<span id="cb29-25"><a href="#cb29-25"></a></span>
+<span id="cb29-26"><a href="#cb29-26"></a></span>
+<span id="cb29-27"><a href="#cb29-27"></a><span class="fu"># Read data</span></span>
+<span id="cb29-28"><a href="#cb29-28"></a></span>
+<span id="cb29-29"><a href="#cb29-29"></a>Differentially expressed genes from last script</span>
+<span id="cb29-30"><a href="#cb29-30"></a></span>
+<span id="cb29-33"><a href="#cb29-33"></a><span class="in">```{r}</span></span>
+<span id="cb29-34"><a href="#cb29-34"></a>dges <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"dgelist.tsv.xz"</span>))</span>
+<span id="cb29-35"><a href="#cb29-35"></a><span class="in">```</span></span>
+<span id="cb29-36"><a href="#cb29-36"></a></span>
+<span id="cb29-37"><a href="#cb29-37"></a>CPM expression matrix from last script</span>
+<span id="cb29-38"><a href="#cb29-38"></a></span>
+<span id="cb29-41"><a href="#cb29-41"></a><span class="in">```{r}</span></span>
+<span id="cb29-42"><a href="#cb29-42"></a>cpm_combined <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"genes_cpm.tsv.xz"</span>))</span>
+<span id="cb29-43"><a href="#cb29-43"></a><span class="in">```</span></span>
+<span id="cb29-44"><a href="#cb29-44"></a></span>
+<span id="cb29-45"><a href="#cb29-45"></a></span>
+<span id="cb29-46"><a href="#cb29-46"></a>Annotations from eggnoggmapper</span>
+<span id="cb29-47"><a href="#cb29-47"></a></span>
+<span id="cb29-50"><a href="#cb29-50"></a><span class="in">```{r}</span></span>
+<span id="cb29-51"><a href="#cb29-51"></a>annotations <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(</span>
+<span id="cb29-52"><a href="#cb29-52"></a>  here<span class="sc">::</span><span class="fu">here</span>(</span>
+<span id="cb29-53"><a href="#cb29-53"></a>    <span class="st">"_data_raw"</span>,</span>
+<span id="cb29-54"><a href="#cb29-54"></a>    <span class="st">"eggnoggmapper"</span>,</span>
+<span id="cb29-55"><a href="#cb29-55"></a>    <span class="st">"nanjingSynCom122_combined.emapper.annotations.xz"</span></span>
+<span id="cb29-56"><a href="#cb29-56"></a>  ),</span>
+<span id="cb29-57"><a href="#cb29-57"></a>  <span class="at">skip =</span> <span class="dv">5</span>,</span>
+<span id="cb29-58"><a href="#cb29-58"></a>  <span class="at">col_names =</span> <span class="fu">c</span>(</span>
+<span id="cb29-59"><a href="#cb29-59"></a>    <span class="st">"query"</span>,</span>
+<span id="cb29-60"><a href="#cb29-60"></a>    <span class="st">"seed_ortholog"</span>,</span>
+<span id="cb29-61"><a href="#cb29-61"></a>    <span class="st">"evalue"</span>,</span>
+<span id="cb29-62"><a href="#cb29-62"></a>    <span class="st">"score"</span>,</span>
+<span id="cb29-63"><a href="#cb29-63"></a>    <span class="st">"eggNOG_OGs"</span>,</span>
+<span id="cb29-64"><a href="#cb29-64"></a>    <span class="st">"max_annot_lvl"</span>,</span>
+<span id="cb29-65"><a href="#cb29-65"></a>    <span class="st">"COG_category"</span>,</span>
+<span id="cb29-66"><a href="#cb29-66"></a>    <span class="st">"Description"</span>,</span>
+<span id="cb29-67"><a href="#cb29-67"></a>    <span class="st">"Preferred_name"</span>,</span>
+<span id="cb29-68"><a href="#cb29-68"></a>    <span class="st">"GOs"</span>,</span>
+<span id="cb29-69"><a href="#cb29-69"></a>    <span class="st">"EC"</span>,</span>
+<span id="cb29-70"><a href="#cb29-70"></a>    <span class="st">"KEGG_ko"</span>,</span>
+<span id="cb29-71"><a href="#cb29-71"></a>    <span class="st">"KEGG_Pathway"</span>,</span>
+<span id="cb29-72"><a href="#cb29-72"></a>    <span class="st">"KEGG_Module"</span>,</span>
+<span id="cb29-73"><a href="#cb29-73"></a>    <span class="st">"KEGG_Reaction"</span>,</span>
+<span id="cb29-74"><a href="#cb29-74"></a>    <span class="st">"KEGG_rclass"</span>,</span>
+<span id="cb29-75"><a href="#cb29-75"></a>    <span class="st">"BRITE"</span>,</span>
+<span id="cb29-76"><a href="#cb29-76"></a>    <span class="st">"KEGG_TC"</span>,</span>
+<span id="cb29-77"><a href="#cb29-77"></a>    <span class="st">"CAZy"</span>,</span>
+<span id="cb29-78"><a href="#cb29-78"></a>    <span class="st">"BiGG_Reaction"</span>,</span>
+<span id="cb29-79"><a href="#cb29-79"></a>    <span class="st">"PFAMs"</span></span>
+<span id="cb29-80"><a href="#cb29-80"></a>  )</span>
+<span id="cb29-81"><a href="#cb29-81"></a>)</span>
+<span id="cb29-82"><a href="#cb29-82"></a><span class="in">```</span></span>
+<span id="cb29-83"><a href="#cb29-83"></a></span>
+<span id="cb29-84"><a href="#cb29-84"></a><span class="fu"># Fig. 5d: Ordination (PCA)</span></span>
+<span id="cb29-85"><a href="#cb29-85"></a></span>
+<span id="cb29-88"><a href="#cb29-88"></a><span class="in">```{r}</span></span>
+<span id="cb29-89"><a href="#cb29-89"></a>cpm_combined_mat <span class="ot">&lt;-</span> cpm_combined <span class="sc">%&gt;%</span> </span>
+<span id="cb29-90"><a href="#cb29-90"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb29-91"><a href="#cb29-91"></a>  <span class="fu">column_to_rownames</span>(<span class="at">var =</span> <span class="st">"gene"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-92"><a href="#cb29-92"></a>  <span class="fu">as.matrix</span>()</span>
+<span id="cb29-93"><a href="#cb29-93"></a><span class="in">```</span></span>
+<span id="cb29-94"><a href="#cb29-94"></a></span>
+<span id="cb29-95"><a href="#cb29-95"></a>Perform PCA - Note <span class="in">`vegan::rda()`</span> when specified without a formula is just a PCA </span>
+<span id="cb29-96"><a href="#cb29-96"></a></span>
+<span id="cb29-99"><a href="#cb29-99"></a><span class="in">```{r}</span></span>
+<span id="cb29-100"><a href="#cb29-100"></a><span class="fu">set.seed</span>(<span class="dv">2378</span>)</span>
+<span id="cb29-101"><a href="#cb29-101"></a>pca_result <span class="ot">&lt;-</span> vegan<span class="sc">::</span><span class="fu">rda</span>(<span class="fu">t</span>(cpm_combined_mat), <span class="at">scale=</span><span class="cn">TRUE</span>)</span>
+<span id="cb29-102"><a href="#cb29-102"></a><span class="in">```</span></span>
+<span id="cb29-103"><a href="#cb29-103"></a></span>
+<span id="cb29-106"><a href="#cb29-106"></a><span class="in">```{r}</span></span>
+<span id="cb29-107"><a href="#cb29-107"></a><span class="fu">summary</span>(pca_result)</span>
+<span id="cb29-108"><a href="#cb29-108"></a><span class="in">```</span></span>
+<span id="cb29-109"><a href="#cb29-109"></a></span>
+<span id="cb29-110"><a href="#cb29-110"></a>First 5 principal components explain about 64% of the variance in community expression</span>
+<span id="cb29-111"><a href="#cb29-111"></a></span>
+<span id="cb29-114"><a href="#cb29-114"></a><span class="in">```{r}</span></span>
+<span id="cb29-115"><a href="#cb29-115"></a><span class="co"># gets sample ordinations for the the PCA (unconstrained)</span></span>
+<span id="cb29-116"><a href="#cb29-116"></a>pca_u <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(pca_result<span class="sc">$</span>CA<span class="sc">$</span>u) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-117"><a href="#cb29-117"></a>  tibble<span class="sc">::</span><span class="fu">rownames_to_column</span>(<span class="at">var =</span> <span class="st">"sample"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-118"><a href="#cb29-118"></a>  <span class="fu">mutate</span>(<span class="at">treat =</span> <span class="fu">case_when</span>(<span class="fu">str_detect</span>(sample, <span class="st">"ZDCE"</span>) <span class="sc">~</span> <span class="st">"SC_N1"</span>,</span>
+<span id="cb29-119"><a href="#cb29-119"></a>                           <span class="fu">str_detect</span>(sample, <span class="st">"ZDP"</span>) <span class="sc">~</span> <span class="st">"SC_N2"</span>,</span>
+<span id="cb29-120"><a href="#cb29-120"></a>                           <span class="fu">str_detect</span>(sample, <span class="st">"ZDD"</span>) <span class="sc">~</span> <span class="st">"SC_N3"</span>,</span>
+<span id="cb29-121"><a href="#cb29-121"></a>                           <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"SC"</span>))</span>
+<span id="cb29-122"><a href="#cb29-122"></a></span>
+<span id="cb29-123"><a href="#cb29-123"></a><span class="co"># save this in case colleagues want to plot it themselves</span></span>
+<span id="cb29-124"><a href="#cb29-124"></a><span class="fu">write_tsv</span>(pca_u, here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"pca_results.tsv"</span>))</span>
+<span id="cb29-125"><a href="#cb29-125"></a><span class="in">```</span></span>
+<span id="cb29-126"><a href="#cb29-126"></a></span>
+<span id="cb29-127"><a href="#cb29-127"></a></span>
+<span id="cb29-128"><a href="#cb29-128"></a>Plot the results</span>
+<span id="cb29-129"><a href="#cb29-129"></a></span>
+<span id="cb29-130"><a href="#cb29-130"></a>::: {#fig-01}</span>
+<span id="cb29-133"><a href="#cb29-133"></a><span class="in">```{r}</span></span>
+<span id="cb29-134"><a href="#cb29-134"></a><span class="co">#| label: "Fig 5d"</span></span>
+<span id="cb29-135"><a href="#cb29-135"></a><span class="co">#| fig-width: 4</span></span>
+<span id="cb29-136"><a href="#cb29-136"></a><span class="co">#| fig-height: 4</span></span>
+<span id="cb29-137"><a href="#cb29-137"></a><span class="fu">ggplot</span>(pca_u, <span class="fu">aes</span>(<span class="at">x =</span> PC1, <span class="at">y =</span> PC2)) <span class="sc">+</span> </span>
+<span id="cb29-138"><a href="#cb29-138"></a>  <span class="co"># to prevent overlapping</span></span>
+<span id="cb29-139"><a href="#cb29-139"></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">fill =</span> treat), <span class="at">alpha =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">width =</span> <span class="fl">0.05</span>, <span class="at">height =</span> <span class="fl">0.05</span>) <span class="sc">+</span></span>
+<span id="cb29-140"><a href="#cb29-140"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"PC1 (33%)"</span>, <span class="at">y =</span> <span class="st">"PC2 (15%)"</span>, <span class="at">fill =</span> <span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb29-141"><a href="#cb29-141"></a>  <span class="fu">coord_fixed</span>() <span class="sc">+</span> </span>
+<span id="cb29-142"><a href="#cb29-142"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb29-143"><a href="#cb29-143"></a>  <span class="fu">theme</span>(</span>
+<span id="cb29-144"><a href="#cb29-144"></a>      <span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb29-145"><a href="#cb29-145"></a>      <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb29-146"><a href="#cb29-146"></a>      <span class="at">panel.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb29-147"><a href="#cb29-147"></a>      <span class="at">strip.placement =</span> <span class="st">'outside'</span>,</span>
+<span id="cb29-148"><a href="#cb29-148"></a>      <span class="at">strip.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb29-149"><a href="#cb29-149"></a>      <span class="at">legend.position =</span> <span class="st">"bottom"</span></span>
+<span id="cb29-150"><a href="#cb29-150"></a>    )</span>
+<span id="cb29-151"><a href="#cb29-151"></a><span class="in">```</span></span>
+<span id="cb29-152"><a href="#cb29-152"></a>Projection of metranscriptomic samples and predator tretament variables along the first two Principal Component axes (PC1 = 32%, PC2 = 15% variation explained). The first five axes explain 64% of the total variation in bacterial transcript abundance. SC = synthetic bacteria community (SynCom) without predator, SC_N1 = SynCom with *Caenorhabditis elegans*, SC_N2 = SynCom with *Panagrolaimus* sp. NJ, SC_N3 = SynCom with *Distolabrellus veechi*. </span>
+<span id="cb29-153"><a href="#cb29-153"></a>:::</span>
+<span id="cb29-154"><a href="#cb29-154"></a></span>
+<span id="cb29-155"><a href="#cb29-155"></a>This plot basically looks the earlier version where I didn't know how the analysis was performed (potentially not separated by species). However, there does seem to be some additional variability between the control replicates.</span>
+<span id="cb29-156"><a href="#cb29-156"></a></span>
+<span id="cb29-157"><a href="#cb29-157"></a><span class="fu"># Fig. 5e: Up and down regulated genes </span></span>
+<span id="cb29-158"><a href="#cb29-158"></a></span>
+<span id="cb29-159"><a href="#cb29-159"></a>::: {#fig-02}</span>
+<span id="cb29-162"><a href="#cb29-162"></a><span class="in">```{r}</span></span>
+<span id="cb29-163"><a href="#cb29-163"></a><span class="co">#| label: "Fig 5e"</span></span>
+<span id="cb29-164"><a href="#cb29-164"></a><span class="co">#| fig-width: 6</span></span>
+<span id="cb29-165"><a href="#cb29-165"></a><span class="co">#| fig-height: 4</span></span>
+<span id="cb29-166"><a href="#cb29-166"></a>dges <span class="sc">%&gt;%</span> </span>
+<span id="cb29-167"><a href="#cb29-167"></a>  <span class="fu">filter</span>(comparison <span class="sc">!=</span> <span class="st">"allN_versus_SC"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-168"><a href="#cb29-168"></a>  <span class="fu">mutate</span>(<span class="at">direction =</span> <span class="fu">factor</span>(<span class="fu">if_else</span>(logFC <span class="sc">&lt;</span> <span class="dv">0</span>, <span class="st">"Down"</span>, <span class="st">"Up"</span>), </span>
+<span id="cb29-169"><a href="#cb29-169"></a>                            <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Up"</span>, <span class="st">"Down"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-170"><a href="#cb29-170"></a>  <span class="fu">mutate</span>(<span class="at">sps =</span> <span class="fu">factor</span>(<span class="fu">if_else</span>(strainID <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"KLE1"</span>, <span class="st">"RAO1"</span>, <span class="st">"PAR1"</span>), strainID, <span class="st">"Others"</span>),</span>
+<span id="cb29-171"><a href="#cb29-171"></a>                      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"KLE1"</span>, <span class="st">"RAO1"</span>, <span class="st">"PAR1"</span>, <span class="st">"Others"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-172"><a href="#cb29-172"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> direction)) <span class="sc">+</span></span>
+<span id="cb29-173"><a href="#cb29-173"></a>  <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> sps)) <span class="sc">+</span></span>
+<span id="cb29-174"><a href="#cb29-174"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"orange"</span>, <span class="st">"limegreen"</span>, <span class="st">"dodgerblue"</span>, <span class="st">"grey80"</span>)) <span class="sc">+</span> </span>
+<span id="cb29-175"><a href="#cb29-175"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">""</span>, <span class="at">y =</span> <span class="st">"Differentially expressed genes</span><span class="sc">\n</span><span class="st">relative to control (SC)"</span>,</span>
+<span id="cb29-176"><a href="#cb29-176"></a>       <span class="at">fill =</span> <span class="st">"Species"</span>) <span class="sc">+</span></span>
+<span id="cb29-177"><a href="#cb29-177"></a>  <span class="fu">facet_grid</span>(<span class="sc">~</span>comparison) <span class="sc">+</span></span>
+<span id="cb29-178"><a href="#cb29-178"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb29-179"><a href="#cb29-179"></a>  <span class="fu">theme</span>(</span>
+<span id="cb29-180"><a href="#cb29-180"></a>      <span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb29-181"><a href="#cb29-181"></a>      <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb29-182"><a href="#cb29-182"></a>      <span class="at">panel.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb29-183"><a href="#cb29-183"></a>      <span class="at">strip.placement =</span> <span class="st">'outside'</span>,</span>
+<span id="cb29-184"><a href="#cb29-184"></a>      <span class="at">strip.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb29-185"><a href="#cb29-185"></a>      <span class="at">legend.position =</span> <span class="st">"bottom"</span></span>
+<span id="cb29-186"><a href="#cb29-186"></a>    )</span>
+<span id="cb29-187"><a href="#cb29-187"></a><span class="in">```</span></span>
+<span id="cb29-188"><a href="#cb29-188"></a>Distribution of genes' transcripts with higher abundance ("Up")  or lower abundance ("Down") in predator treatments relative to the no-predator control. Bars are colored by the proportion of transcripts assigned to species/genome.</span>
+<span id="cb29-189"><a href="#cb29-189"></a>:::</span>
+<span id="cb29-190"><a href="#cb29-190"></a></span>
+<span id="cb29-191"><a href="#cb29-191"></a>There are some key similarities between the original plot and this one. Indeed, more genes' transcripts appear to be more over-expressed than under-expressed in the presence of predators than in the absence of predators. One could interpret this as reflecting that predators 'turn on' more bacterial genes than they 'turn off' which is consistent with prior work. However, here the taxonomic distribution of the expression seems less skewed towards the focal species than in the original analysis. I suspect this is because the original analysis did not account for the fact that RAO1 and KLE1 **DNA templates** dramatically increased in abundance in the predator treatments. By analyzing each species separately and then aggregating them, this analysis minimizes the effect of species abundance changes and so we get a more even taxonomic distribution.</span>
+<span id="cb29-192"><a href="#cb29-192"></a></span>
+<span id="cb29-193"><a href="#cb29-193"></a></span>
+<span id="cb29-194"><a href="#cb29-194"></a><span class="fu"># Fig. 5f: Shared DGEs</span></span>
+<span id="cb29-195"><a href="#cb29-195"></a></span>
+<span id="cb29-198"><a href="#cb29-198"></a><span class="in">```{r}</span></span>
+<span id="cb29-199"><a href="#cb29-199"></a>vennlist <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb29-200"><a href="#cb29-200"></a>  <span class="at">SC_N1 =</span> <span class="fu">pull</span>(<span class="fu">filter</span>(dges, comparison <span class="sc">==</span> <span class="st">"SCN1_versus_SC"</span>), gene),</span>
+<span id="cb29-201"><a href="#cb29-201"></a>  <span class="at">SC_N2 =</span> <span class="fu">pull</span>(<span class="fu">filter</span>(dges, comparison <span class="sc">==</span> <span class="st">"SCN2_versus_SC"</span>), gene),</span>
+<span id="cb29-202"><a href="#cb29-202"></a>  <span class="at">SC_N3 =</span> <span class="fu">pull</span>(<span class="fu">filter</span>(dges, comparison <span class="sc">==</span> <span class="st">"SCN3_versus_SC"</span>), gene)</span>
+<span id="cb29-203"><a href="#cb29-203"></a>)</span>
+<span id="cb29-204"><a href="#cb29-204"></a><span class="in">```</span></span>
+<span id="cb29-205"><a href="#cb29-205"></a></span>
+<span id="cb29-206"><a href="#cb29-206"></a>::: {#fig-03}</span>
+<span id="cb29-209"><a href="#cb29-209"></a><span class="in">```{r}</span></span>
+<span id="cb29-210"><a href="#cb29-210"></a><span class="co">#| label: "Fig 5f"</span></span>
+<span id="cb29-211"><a href="#cb29-211"></a><span class="fu">ggVennDiagram</span>(vennlist) <span class="sc">+</span></span>
+<span id="cb29-212"><a href="#cb29-212"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">trans =</span> <span class="st">"log10"</span>, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">3000</span>, <span class="dv">5000</span>, <span class="dv">10000</span>, <span class="dv">25000</span>, <span class="dv">50000</span>))</span>
+<span id="cb29-213"><a href="#cb29-213"></a><span class="in">```</span></span>
+<span id="cb29-214"><a href="#cb29-214"></a>Venn diagram showing the proportion of differentially expressed genes shared and unique to the three predator treatments. Color reflects the log-scaled count of genes unique or shared in each category, while the absolute number and proportion (%) is presented in text.</span>
+<span id="cb29-215"><a href="#cb29-215"></a>:::</span>
+<span id="cb29-216"><a href="#cb29-216"></a></span>
+<span id="cb29-217"><a href="#cb29-217"></a>Again some similarities and differences here relative to the original. We find about the same total number of genes shared between the three treatments. However, there are more genes unique to each than before, which is what I would expect. Also it appears that the N3 treatment is quite distinct meaning there are many differentially abundant transcripts responding uniquely to *Distolabrellus veechi* while bacterial respond more similarly to *Caenorhabditis elegans* and *Panagrolaimus* sp. NJ.</span>
+<span id="cb29-218"><a href="#cb29-218"></a></span>
+<span id="cb29-219"><a href="#cb29-219"></a>Another thing that I did in the GLM from the last script was code the model contrasts so that we could focus on genes that are on average differentially abundant across the three predator species compared to the control. This approach should find the same genes at the center of the Venn diagram in Fig. 5f. </span>
+<span id="cb29-220"><a href="#cb29-220"></a></span>
+<span id="cb29-223"><a href="#cb29-223"></a><span class="in">```{r}</span></span>
+<span id="cb29-224"><a href="#cb29-224"></a><span class="co"># subset genes that were differentially expressed in all three predator treatments</span></span>
+<span id="cb29-225"><a href="#cb29-225"></a>genes_shared_3_worms <span class="ot">&lt;-</span> dges <span class="sc">%&gt;%</span> </span>
+<span id="cb29-226"><a href="#cb29-226"></a>  <span class="fu">filter</span>(comparison <span class="sc">!=</span> <span class="st">"allN_versus_SC"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-227"><a href="#cb29-227"></a>  <span class="fu">group_by</span>(gene) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-228"><a href="#cb29-228"></a>  <span class="fu">count</span>(comparison) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-229"><a href="#cb29-229"></a>  <span class="fu">filter</span>(<span class="fu">sum</span>(n) <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-230"><a href="#cb29-230"></a>  <span class="fu">distinct</span>(gene) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-231"><a href="#cb29-231"></a>  <span class="fu">mutate</span>(<span class="at">shared =</span> <span class="st">"all_3"</span>)</span>
+<span id="cb29-232"><a href="#cb29-232"></a><span class="in">```</span></span>
+<span id="cb29-233"><a href="#cb29-233"></a></span>
+<span id="cb29-234"><a href="#cb29-234"></a></span>
+<span id="cb29-237"><a href="#cb29-237"></a><span class="in">```{r}</span></span>
+<span id="cb29-238"><a href="#cb29-238"></a>dges <span class="sc">%&gt;%</span> </span>
+<span id="cb29-239"><a href="#cb29-239"></a>  <span class="fu">filter</span>(comparison <span class="sc">==</span> <span class="st">"allN_versus_SC"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-240"><a href="#cb29-240"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(gene, comparison) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-241"><a href="#cb29-241"></a>  <span class="fu">distinct</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb29-242"><a href="#cb29-242"></a>  <span class="fu">left_join</span>(genes_shared_3_worms, <span class="at">by =</span> <span class="fu">join_by</span>(gene)) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-243"><a href="#cb29-243"></a>  <span class="fu">count</span>(<span class="sc">!</span><span class="fu">is.na</span>(comparison) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(shared))</span>
+<span id="cb29-244"><a href="#cb29-244"></a><span class="in">```</span></span>
+<span id="cb29-245"><a href="#cb29-245"></a>Ok so this is performing how we would expect... My custom coded contrasts give about the same number of genes in the center of the Venn Diagram (12352 vs 12465) while it also identifies 32587 genes that were on average diffrentially expressed in response to a predator that are not shared in the Venn diagram. These 35587 genes will include those that are for example included in 2/3 predators or maybe even 1/3 predator treatments if the signal is strong enough.</span>
+<span id="cb29-246"><a href="#cb29-246"></a></span>
+<span id="cb29-247"><a href="#cb29-247"></a><span class="fu"># Functional distributions</span></span>
+<span id="cb29-248"><a href="#cb29-248"></a></span>
+<span id="cb29-249"><a href="#cb29-249"></a>Focusing on shared genes between all worms</span>
+<span id="cb29-250"><a href="#cb29-250"></a></span>
+<span id="cb29-253"><a href="#cb29-253"></a><span class="in">```{r}</span></span>
+<span id="cb29-254"><a href="#cb29-254"></a>COG_info <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(</span>
+<span id="cb29-255"><a href="#cb29-255"></a>  <span class="st">"https://ftp.ncbi.nlm.nih.gov/pub/COG/COG2024/data/cog-24.fun.tab"</span>,</span>
+<span id="cb29-256"><a href="#cb29-256"></a>  <span class="at">skip =</span> <span class="dv">1</span>,</span>
+<span id="cb29-257"><a href="#cb29-257"></a>  <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">"COG_category"</span>, <span class="st">"group"</span>, <span class="st">"color"</span>, <span class="st">"COG_description"</span>)</span>
+<span id="cb29-258"><a href="#cb29-258"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb29-259"><a href="#cb29-259"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(COG_category <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"3"</span>, <span class="st">"4"</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb29-260"><a href="#cb29-260"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb29-261"><a href="#cb29-261"></a>    <span class="at">group =</span> <span class="fu">case_when</span>(</span>
+<span id="cb29-262"><a href="#cb29-262"></a>      group <span class="sc">==</span> <span class="st">"1"</span> <span class="sc">~</span> <span class="st">"Information storage and processing"</span>,</span>
+<span id="cb29-263"><a href="#cb29-263"></a>      group <span class="sc">==</span> <span class="st">"2"</span> <span class="sc">~</span> <span class="st">"Cellular processes and signaling"</span>,</span>
+<span id="cb29-264"><a href="#cb29-264"></a>      group <span class="sc">==</span> <span class="st">"3"</span> <span class="sc">~</span> <span class="st">"Metabolism"</span>,</span>
+<span id="cb29-265"><a href="#cb29-265"></a>      group <span class="sc">==</span> <span class="st">"4"</span> <span class="sc">~</span> <span class="st">"Poorly characterized"</span></span>
+<span id="cb29-266"><a href="#cb29-266"></a>    )</span>
+<span id="cb29-267"><a href="#cb29-267"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb29-268"><a href="#cb29-268"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb29-269"><a href="#cb29-269"></a>    <span class="at">COG_description =</span> <span class="fu">if_else</span>(COG_category <span class="sc">==</span> <span class="st">"X"</span>, color, COG_description),</span>
+<span id="cb29-270"><a href="#cb29-270"></a>    <span class="at">color =</span> <span class="fu">if_else</span>(COG_category <span class="sc">==</span> <span class="st">"X"</span>, <span class="cn">NA_character_</span>, color)</span>
+<span id="cb29-271"><a href="#cb29-271"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb29-272"><a href="#cb29-272"></a>  <span class="fu">mutate</span>(<span class="at">group =</span> <span class="fu">factor</span>(</span>
+<span id="cb29-273"><a href="#cb29-273"></a>    group,</span>
+<span id="cb29-274"><a href="#cb29-274"></a>    <span class="at">levels =</span> <span class="fu">c</span>(</span>
+<span id="cb29-275"><a href="#cb29-275"></a>      <span class="st">"Information storage and processing"</span>,</span>
+<span id="cb29-276"><a href="#cb29-276"></a>      <span class="st">"Cellular processes and signaling"</span>,</span>
+<span id="cb29-277"><a href="#cb29-277"></a>      <span class="st">"Metabolism"</span>,</span>
+<span id="cb29-278"><a href="#cb29-278"></a>      <span class="st">"Poorly characterized"</span></span>
+<span id="cb29-279"><a href="#cb29-279"></a>    )</span>
+<span id="cb29-280"><a href="#cb29-280"></a>  )) <span class="sc">%&gt;%</span></span>
+<span id="cb29-281"><a href="#cb29-281"></a>  <span class="fu">mutate</span>(<span class="at">COG_category =</span> <span class="fu">factor</span>(</span>
+<span id="cb29-282"><a href="#cb29-282"></a>    COG_category,</span>
+<span id="cb29-283"><a href="#cb29-283"></a>    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"J"</span>, <span class="st">"A"</span>, <span class="st">"K"</span>, <span class="st">"L"</span>, <span class="st">"B"</span>, <span class="st">"D"</span>, <span class="st">"Y"</span>, <span class="st">"V"</span>, <span class="st">"T"</span>, <span class="st">"M"</span>, <span class="st">"N"</span>,</span>
+<span id="cb29-284"><a href="#cb29-284"></a>      <span class="st">"Z"</span>, <span class="st">"W"</span>, <span class="st">"U"</span>, <span class="st">"O"</span>, <span class="st">"X"</span>, <span class="st">"C"</span>, <span class="st">"G"</span>, <span class="st">"E"</span>, <span class="st">"F"</span>, <span class="st">"H"</span>, <span class="st">"I"</span>, <span class="st">"P"</span>, <span class="st">"Q"</span>,</span>
+<span id="cb29-285"><a href="#cb29-285"></a>      <span class="st">"R"</span>, <span class="st">"S"</span></span>
+<span id="cb29-286"><a href="#cb29-286"></a>    )</span>
+<span id="cb29-287"><a href="#cb29-287"></a>  ))</span>
+<span id="cb29-288"><a href="#cb29-288"></a><span class="in">```</span></span>
+<span id="cb29-289"><a href="#cb29-289"></a></span>
+<span id="cb29-290"><a href="#cb29-290"></a>Get summary of the distribution of COGs</span>
+<span id="cb29-291"><a href="#cb29-291"></a></span>
+<span id="cb29-294"><a href="#cb29-294"></a><span class="in">```{r}</span></span>
+<span id="cb29-295"><a href="#cb29-295"></a>genes_shared_3_worms_annotated <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(annotations, genes_shared_3_worms, <span class="at">by =</span> <span class="fu">join_by</span>(query <span class="sc">==</span> gene)) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-296"><a href="#cb29-296"></a>  <span class="fu">mutate</span>(<span class="at">COG_category =</span> <span class="fu">if_else</span>(COG_category <span class="sc">==</span> <span class="st">"-"</span>, <span class="st">"None"</span>, COG_category)) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-297"><a href="#cb29-297"></a>  <span class="fu">inner_join</span>(COG_info, <span class="at">by =</span> <span class="fu">join_by</span>(COG_category))</span>
+<span id="cb29-298"><a href="#cb29-298"></a><span class="in">```</span></span>
+<span id="cb29-299"><a href="#cb29-299"></a></span>
+<span id="cb29-300"><a href="#cb29-300"></a>::: {#fig-04}</span>
+<span id="cb29-303"><a href="#cb29-303"></a><span class="in">```{r}</span></span>
+<span id="cb29-304"><a href="#cb29-304"></a><span class="co">#| fig-width: 6</span></span>
+<span id="cb29-305"><a href="#cb29-305"></a><span class="co">#| fig-height: 4</span></span>
+<span id="cb29-306"><a href="#cb29-306"></a>genes_shared_3_worms_annotated <span class="sc">%&gt;%</span> </span>
+<span id="cb29-307"><a href="#cb29-307"></a>  <span class="fu">count</span>(group) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-308"><a href="#cb29-308"></a>  <span class="fu">mutate</span>(<span class="at">prop =</span> n<span class="sc">/</span><span class="fu">sum</span>(n)) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-309"><a href="#cb29-309"></a>  <span class="fu">mutate</span>(<span class="at">prop_chr =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(prop<span class="sc">*</span><span class="dv">100</span>), <span class="st">"%"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-310"><a href="#cb29-310"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(group)) <span class="sc">%&gt;%</span></span>
+<span id="cb29-311"><a href="#cb29-311"></a>  <span class="fu">mutate</span>(<span class="at">lab.ypos =</span> <span class="fu">cumsum</span>(prop) <span class="sc">-</span> <span class="fl">0.5</span><span class="sc">*</span>prop) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-312"><a href="#cb29-312"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span><span class="st">""</span>, <span class="at">y=</span>prop, <span class="at">fill=</span>group)) <span class="sc">+</span></span>
+<span id="cb29-313"><a href="#cb29-313"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb29-314"><a href="#cb29-314"></a>  <span class="fu">coord_polar</span>(<span class="st">"y"</span>, <span class="at">start=</span><span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb29-315"><a href="#cb29-315"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">y =</span> lab.ypos, <span class="at">label =</span> prop_chr), <span class="at">color =</span> <span class="st">"white"</span>)<span class="sc">+</span></span>
+<span id="cb29-316"><a href="#cb29-316"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#0073C2FF"</span>, <span class="st">"#EFC000FF"</span>, <span class="st">"#868686FF"</span>, <span class="st">"#CD534CFF"</span>)) <span class="sc">+</span></span>
+<span id="cb29-317"><a href="#cb29-317"></a>  <span class="fu">theme_void</span>()</span>
+<span id="cb29-318"><a href="#cb29-318"></a><span class="in">```</span></span>
+<span id="cb29-319"><a href="#cb29-319"></a>Proportion of COG higher order groupings of all 10212 differentially expressed genes (with a single COG_category annotation) shared between all three predator treatments. </span>
+<span id="cb29-320"><a href="#cb29-320"></a>:::</span>
+<span id="cb29-321"><a href="#cb29-321"></a></span>
+<span id="cb29-322"><a href="#cb29-322"></a>So we see basically that most DEGs fall into the COG "Metabolism" category. Now let's look at the detailed breakdown within these categories. Now we are focusing only on genes with &gt;= 5 abs(logFC) so we need to go back a bit and do some formatting</span>
+<span id="cb29-323"><a href="#cb29-323"></a></span>
+<span id="cb29-326"><a href="#cb29-326"></a><span class="in">```{r}</span></span>
+<span id="cb29-327"><a href="#cb29-327"></a><span class="co"># this gets genes that have abs(logFC) &gt; 5 on average across all three predator treatments</span></span>
+<span id="cb29-328"><a href="#cb29-328"></a>meanFC_5 <span class="ot">&lt;-</span> dges <span class="sc">%&gt;%</span></span>
+<span id="cb29-329"><a href="#cb29-329"></a>  <span class="fu">filter</span>(comparison <span class="sc">==</span> <span class="st">"allN_versus_SC"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-330"><a href="#cb29-330"></a>  <span class="fu">filter</span>(<span class="fu">abs</span>(logFC) <span class="sc">&gt;</span> <span class="dv">5</span>)</span>
+<span id="cb29-331"><a href="#cb29-331"></a><span class="in">```</span></span>
+<span id="cb29-332"><a href="#cb29-332"></a></span>
+<span id="cb29-335"><a href="#cb29-335"></a><span class="in">```{r}</span></span>
+<span id="cb29-336"><a href="#cb29-336"></a><span class="co"># attaching to dges </span></span>
+<span id="cb29-337"><a href="#cb29-337"></a>genes_shared_3_worms_annotated_5filt <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(genes_shared_3_worms_annotated, meanFC_5, <span class="at">by =</span> <span class="fu">join_by</span>(query <span class="sc">==</span> gene))</span>
+<span id="cb29-338"><a href="#cb29-338"></a><span class="in">```</span></span>
+<span id="cb29-339"><a href="#cb29-339"></a></span>
+<span id="cb29-340"><a href="#cb29-340"></a>::: {#fig-05}</span>
+<span id="cb29-343"><a href="#cb29-343"></a><span class="in">```{r}</span></span>
+<span id="cb29-344"><a href="#cb29-344"></a><span class="co">#| fig-width: 7</span></span>
+<span id="cb29-345"><a href="#cb29-345"></a><span class="co">#| fig-height: 4</span></span>
+<span id="cb29-346"><a href="#cb29-346"></a>genes_shared_3_worms_annotated_5filt <span class="sc">%&gt;%</span> </span>
+<span id="cb29-347"><a href="#cb29-347"></a>  <span class="co"># remove poorly characterized/unknown functions</span></span>
+<span id="cb29-348"><a href="#cb29-348"></a>  <span class="fu">filter</span>(group <span class="sc">!=</span> <span class="st">"Poorly characterized"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-349"><a href="#cb29-349"></a>  <span class="fu">mutate</span>(<span class="at">sps =</span> <span class="fu">factor</span>(<span class="fu">if_else</span>(strainID <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"KLE1"</span>, <span class="st">"RAO1"</span>, <span class="st">"PAR1"</span>), strainID, <span class="st">"Others"</span>),</span>
+<span id="cb29-350"><a href="#cb29-350"></a>                      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"KLE1"</span>, <span class="st">"RAO1"</span>, <span class="st">"PAR1"</span>, <span class="st">"Others"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-351"><a href="#cb29-351"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">fct_infreq</span>(COG_category))) <span class="sc">+</span></span>
+<span id="cb29-352"><a href="#cb29-352"></a>  <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> sps)) <span class="sc">+</span></span>
+<span id="cb29-353"><a href="#cb29-353"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>group, <span class="at">scales =</span> <span class="st">"free_x"</span>, <span class="at">ncol =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb29-354"><a href="#cb29-354"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"orange"</span>, <span class="st">"limegreen"</span>, <span class="st">"grey80"</span>)) <span class="sc">+</span></span>
+<span id="cb29-355"><a href="#cb29-355"></a>  <span class="fu">scale_x_discrete</span>(<span class="at">guide =</span> <span class="fu">guide_axis</span>(<span class="at">angle =</span> <span class="dv">90</span>)) <span class="sc">+</span></span>
+<span id="cb29-356"><a href="#cb29-356"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"COG cateogry"</span>, <span class="at">y =</span> <span class="st">"Differentially expressed genes</span><span class="sc">\n</span><span class="st">relative to control (SC)"</span>,</span>
+<span id="cb29-357"><a href="#cb29-357"></a>       <span class="at">fill =</span> <span class="st">"Species"</span>) <span class="sc">+</span></span>
+<span id="cb29-358"><a href="#cb29-358"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb29-359"><a href="#cb29-359"></a>  <span class="fu">theme</span>(</span>
+<span id="cb29-360"><a href="#cb29-360"></a>      <span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb29-361"><a href="#cb29-361"></a>      <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb29-362"><a href="#cb29-362"></a>      <span class="at">panel.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb29-363"><a href="#cb29-363"></a>      <span class="at">strip.placement =</span> <span class="st">'outside'</span>,</span>
+<span id="cb29-364"><a href="#cb29-364"></a>      <span class="at">strip.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb29-365"><a href="#cb29-365"></a>      <span class="at">legend.position =</span> <span class="st">"bottom"</span></span>
+<span id="cb29-366"><a href="#cb29-366"></a>    )</span>
+<span id="cb29-367"><a href="#cb29-367"></a><span class="in">```</span></span>
+<span id="cb29-368"><a href="#cb29-368"></a>Distribution of individual COG categories within the higher order COG groupings but only including differentially expressed genes with a log2 fold change &gt;= 5 or &lt;= -5. Color represents the species distribution in each COG category.</span>
+<span id="cb29-369"><a href="#cb29-369"></a>:::</span>
+<span id="cb29-370"><a href="#cb29-370"></a></span>
+<span id="cb29-371"><a href="#cb29-371"></a>Just focusing on "Metabolism"</span>
+<span id="cb29-372"><a href="#cb29-372"></a></span>
+<span id="cb29-373"><a href="#cb29-373"></a>::: {#fig-06}</span>
+<span id="cb29-376"><a href="#cb29-376"></a><span class="in">```{r}</span></span>
+<span id="cb29-377"><a href="#cb29-377"></a><span class="co">#| fig-width: 5</span></span>
+<span id="cb29-378"><a href="#cb29-378"></a><span class="co">#| fig-height: 4</span></span>
+<span id="cb29-379"><a href="#cb29-379"></a>genes_shared_3_worms_annotated_5filt <span class="sc">%&gt;%</span> </span>
+<span id="cb29-380"><a href="#cb29-380"></a>  <span class="co"># remove poorly characterized/unknown functions</span></span>
+<span id="cb29-381"><a href="#cb29-381"></a>  <span class="fu">filter</span>(group <span class="sc">==</span> <span class="st">"Metabolism"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-382"><a href="#cb29-382"></a>  <span class="fu">mutate</span>(<span class="at">sps =</span> <span class="fu">factor</span>(<span class="fu">if_else</span>(strainID <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"KLE1"</span>, <span class="st">"RAO1"</span>, <span class="st">"PAR1"</span>), strainID, <span class="st">"Others"</span>),</span>
+<span id="cb29-383"><a href="#cb29-383"></a>                      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"KLE1"</span>, <span class="st">"RAO1"</span>, <span class="st">"PAR1"</span>, <span class="st">"Others"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-384"><a href="#cb29-384"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">fct_infreq</span>(COG_category, ))) <span class="sc">+</span></span>
+<span id="cb29-385"><a href="#cb29-385"></a>  <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> sps)) <span class="sc">+</span></span>
+<span id="cb29-386"><a href="#cb29-386"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>group) <span class="sc">+</span></span>
+<span id="cb29-387"><a href="#cb29-387"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"orange"</span>, <span class="st">"limegreen"</span>, <span class="st">"grey80"</span>)) <span class="sc">+</span></span>
+<span id="cb29-388"><a href="#cb29-388"></a>  <span class="fu">scale_x_discrete</span>(<span class="at">guide =</span> <span class="fu">guide_axis</span>(<span class="at">angle =</span> <span class="dv">90</span>)) <span class="sc">+</span></span>
+<span id="cb29-389"><a href="#cb29-389"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"COG cateogry"</span>, <span class="at">y =</span> <span class="st">"Differentially expressed genes</span><span class="sc">\n</span><span class="st">relative to control (SC)"</span>,</span>
+<span id="cb29-390"><a href="#cb29-390"></a>       <span class="at">fill =</span> <span class="st">"Species"</span>) <span class="sc">+</span></span>
+<span id="cb29-391"><a href="#cb29-391"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb29-392"><a href="#cb29-392"></a>  <span class="fu">theme</span>(</span>
+<span id="cb29-393"><a href="#cb29-393"></a>      <span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb29-394"><a href="#cb29-394"></a>      <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb29-395"><a href="#cb29-395"></a>      <span class="at">panel.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb29-396"><a href="#cb29-396"></a>      <span class="at">strip.placement =</span> <span class="st">'outside'</span>,</span>
+<span id="cb29-397"><a href="#cb29-397"></a>      <span class="at">strip.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb29-398"><a href="#cb29-398"></a>      <span class="at">legend.position =</span> <span class="st">"bottom"</span></span>
+<span id="cb29-399"><a href="#cb29-399"></a>    )</span>
+<span id="cb29-400"><a href="#cb29-400"></a><span class="in">```</span></span>
+<span id="cb29-401"><a href="#cb29-401"></a>As in @fig-05 but focusing on "Metabolism." COG categories are: E - Amino acid transport and metabolism, C - Energy production and conversion, P - Inorganic ion transport and metabolism, G - Carbohydrate transport and metabolism, H - Coenzyme transport and metabolism, I - Lipid transport and metabolism, F - Nucleotide transport and metabolism, Q - Secondary metabolites biosynthesis, transport and catabolism.</span>
+<span id="cb29-402"><a href="#cb29-402"></a>:::</span>
+<span id="cb29-403"><a href="#cb29-403"></a></span>
+<span id="cb29-404"><a href="#cb29-404"></a>In agreement with the earlier analysis, I see a trend that differentially abundant genes are primarily associated with cellular metabolism - in particular, genes involved in Carbohydrate, Amino acid, and inorganic ion (e.g., trace metals) metabolism. </span>
+<span id="cb29-405"><a href="#cb29-405"></a></span>
+<span id="cb29-406"><a href="#cb29-406"></a>However, the earlier analysis noted that a large number of genes putatively involved in antibiotic biosynthesis were differentially regulated in response to predators, particularly in RAO1 and KLE1. I do not see that here. I annotated the RAO1 and KLE1 genomes using <span class="co">[</span><span class="ot">antiSMASH</span><span class="co">](https://antismash.secondarymetabolites.org/#!/start)</span>. <span class="co">[</span><span class="ot">Results for KLE1 are here</span><span class="co">](https://antismash.secondarymetabolites.org/upload/bacteria-d391b4c6-4482-4501-b6d0-39ec19fa8156/index.html#)</span> and results for <span class="co">[</span><span class="ot">RAO1 are here</span><span class="co">](https://antismash.secondarymetabolites.org/upload/bacteria-9bcd1ae6-e4d3-40b6-b397-9c631e3a9416/index.html#)</span>. In neither of these genomes do I see any obvious gene clusters related to antibiotic biosynthesis. In fact, neither of them have very many secondary metabolite genes at all. Thus, I am skeptical about Fig 3g that shows that almost 250 genes related to antibiotic biosynthesis are differentially regulated in KLE1 when KLE1 doesn't even have 25 genes related to secondary metabolite biosynthesis... This could be due to differences in how we annotated the genomes (I used a local installation of <span class="co">[</span><span class="ot">eggnoggmapper</span><span class="co">](http://eggnog-mapper.embl.de/)</span>), but I don't think annotation differences would produce this large of a discrepancy.</span>
+<span id="cb29-407"><a href="#cb29-407"></a></span>
+<span id="cb29-408"><a href="#cb29-408"></a>More than likely this has to do with the fact that the prior analysis combined differential expression and differential template abundances into one aggregate finding. It is true that if KLE1 and RAO1 are more abundant in predator treatments but express antibiotic biosynthesis genes at the same level then the absolute antibiotic concentration might be higher in predator treatments... This is pure speculation though. But framing the discussion that these species upregulate or downregulate these pathways (i.e., a change in the per capita production of antibiotics) in resposne to predator is incorrect. </span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

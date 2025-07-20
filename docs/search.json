@@ -1,0 +1,172 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "RNAseq ata analysis for the project ‘bacteria-nematode interactions’",
+    "section": "",
+    "text": "This work is done in collaboration with Dr. Liu Ting, Dr. Li Gen, and Prof. Zhong Wei at Nanjing Agriculturatl University. Here we quality control the RNAseq data from a metatranscriptomics experiment, map to the Nanjing 122 bacterial species SynCom, and count reads mapping to genes.\nIn subsequent steps we process the output in R so that we can provide it to our collaborators.\n\n\nNote this code is not meant to be executed in this project directory but is meant to provide a record of the commands used to format and process the necessary data files from the SynCom assemblies.\n\nFormatting assemblies\n\n\n\nShow/hide code\n# Get the ids of the genome assemblies\nmkdir assemblies\ncd assemblies_orig\nprintf '%s\\n' *.fna | sed 's/.fna//g' &gt; ids.txt\nmv ids.txt ..\ncd ..\n\n\nmkdir: cannot create directory ‘assemblies’: File exists\nbash: line 3: cd: assemblies_orig: No such file or directory\n\n\n\n\nShow/hide code\n# Here we rename all chromosomes so that they have a single name, appending an\n# integer if there are multiple sequences per genome\ncat ids.txt | while read ID; do seqkit replace -p \".*\" -r $ID assemblies_orig/$ID.fna | seqkit rename -n | seqkit replace -p \"\\s.*$\" -r \"\" | seqkit replace -p \"_\" -r \".\" &gt; assemblies/$ID.fna; done\n\n\ncat: ids.txt: No such file or directory\n\n\n\n\nShow/hide code\n# Now we find assemblies with multiple chromosomes for some later manual tweaks.\n# This is needed to have a consistent naming scheme\ngrep -c \"&gt;\" assemblies/* | sed 's/\\:/ /g' | sort -nrk2,2\n\n\ngrep: assemblies/*: No such file or directory\n\n\n\nProkka\n\nRun prokka to call genes on the 122 assemblies and annotate them with a consistent format - see sh/prokka/prokka.sh\n\nEggnoggmapper\n\nRun eggnoggmapper to functionally annotate genes - see sh/eggnoggmapper/eggnoggmapper.sh\n\nFormatting for rRNA filtering (these steps performed on computer cluster)\n\nGet rRNAs from prokka which will be used later in the quality control steps to filter out reads mapping to bacterial rRNAs\ncd prokka\ngrep \"ribosomal RNA\" */*.tsv | sed 's/.tsv:/.ffn\\t/g' | cut -f1,2 | while read FILE RNA; do seqkit grep -n -r -p \"${RNA}\" ${FILE}; done &gt; nanjingSynCom122_rrnas.fasta\nseqkit rmdup -s nanjingSynCom122_rrnas.fasta\n\n\n\n\nMake SAF file from GFF file to be used with featureCounts\n\ncd rnaseq/map_count/saf\ncat ../../../nanjingSynCom122/ids.txt | while read ID; do sed -n '/&gt;/q;p' ../../../nanjingSynCom122/prokka/${ID}/${ID}.gff | grep -v \"^#\" | sed 's/;.*$//g' | sed 's/ID=//g' | bioawk -t '{print $9, $1, $4, $5, $7}' | grep -v \"^note\"; done &gt; nanjingSynCom122_combined.saf\nThe resulting file looks like this\nhead saf/nanjingSynCom122_combined.saf\nGeneID  Chr Start   End Strand\n1aci1_00001 1aci1   178 1365    +\n1aci1_00002 1aci1   1498    2616    +\n1aci1_00003 1aci1   2754    5378    +\n1aci1_00004 1aci1   5603    5920    -\n1aci1_00005 1aci1   6257    6868    -\n1aci1_00006 1aci1   7122    7913    +\n1aci1_00007 1aci1   7967    8389    +\n1aci1_00008 1aci1   8463    8807    -\n1aci1_00009 1aci1   8986    9246    +\nConcatenate all assemblies into single file for mapping with bwa. Create the necessary indexes\ncd rnaseq/map_count/refs\ncat ../../../nanjingSynCom122/prokka/*/*.fna &gt; nanjingSynCom122_combined.fna\nsamtools faidx nanjingSynCom122_combined.fna\nbwa index nanjingSynCom122_combined.fna\n\n\n\nHere we do standard filtering and trimming of reads.Bacterial community total cDNA read pairs are processed using BBDuk (version 39.23 (https://sourceforge.net/projects/bbmap/) to remove contaminants, trim reads that contained adapter sequence, right quality trim reads where quality drops below Q10, and exclude reads with more than 2 Ns. BBMap (version 39.23) was then used map cDNA read pairs to a database of bactieral 16S, 5S and 18S rRNAs from the 122 bacterial species SynCom based on exact matches.\nThe steps to reproduce this are available in sh/qualitycontrol/\n\n\n\nHere we map the quality controlled read pairs to a concatenated reference of the 122 bacterial SynCom genomes using BWA. The resulting BAM files are sorted and then the program featureCounts v2.1.1 is used to count the number of reads mapping to genes in the assemblies.\nThe steps to reproduce this are available in sh/map_count/\n\n\n\n\nLoad big matrix into R and use gene identifiers to partition into n &lt;= 122 species-specific sub-matrices\n\n\n\n\nhttps://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02337-8\n\nCalculate TMM for each species sub-matrix separately.\n\n\nhttps://genomebiology.biomedcentral.com/articles/10.1186/gb-2010-11-3-r25\nhttps://www.biostars.org/p/9475236/\nhttps://www.biostars.org/p/306010/\nhttps://www.biostars.org/p/419018/#419177\nhttps://davetang.github.io/muse/edger.html\n\n\nCombine TMM matrices for all species into a single matrix and use in a clustering analysis like tSNE (reproduces Fig. 3d)\n\n\nFor the comparison of transcript abundance across multiple samples, transcript counts need to be normalized in each organism by individual transcript lengths and total library size. Due to the differences in transcript abundances between the major and minor organisms, counts for each organism should be normalized independently using transcript per million (TPM) calculations [73]. TPM values are calculated by dividing all read counts by the length of each gene in kilobases to obtain a reads per kilobase (RPK) value for each gene [92]. The RPK value for each gene is then divided by the sum of RPK values divided by 1,000,000. While RPKM and FPKM calculations are also used for normalization, the sum of the RPKM and FPKM values differ between samples with differing numbers of reads, which can result in disproportionate comparisons [92].\n\n\n\n\n\nRun a separate edgeR analysis for each species sub-matrix\nConcatenate results of significantly differentially expressed genes\nSend to collaborators\n\n\n\n\nData and code in this GitHub repository (https://github.com/GHUSERNAME/REPOSITORYNAME) are provided under GNU AGPL3. The rendered project site is available at https://GHUSERNAME.github.io/REPOSITORYNAME/, which has been produced using Quarto notebooks. The content on the rendered site is released under the CC BY 4.0. This repository hosts all code and data for this project, including the code necessary to fully recreate the rendered webpage.\nAn archived release of the code is available from Zenodo: https://zenodo.org/records/EVENTUAL_ZENODO_RECORD\nRaw sequencing data used in the project is available from NCBI Bioproject [PRJNA00000000](https://www.ncbi.nlm.nih\n\n\n\nThe project uses renv to create a reproducible environment to execute the code in this project. See here for a brief overview on collaboration and reproduction of the entire project. To get up and running from an established repository, you could do:\ninstall.packages(\"renv\")\nrenv::restore()\nTo initiate renv for a new project:\ninstall.packages(\"renv\")\n# initialize\nrenv::init()\n# install some new packages\nrenv::install(\"tidyverse\")\n# record those packages in the lockfile\nrenv::snapshot()"
+  },
+  {
+    "objectID": "index.html#format-122-species-syncom",
+    "href": "index.html#format-122-species-syncom",
+    "title": "RNAseq ata analysis for the project ‘bacteria-nematode interactions’",
+    "section": "",
+    "text": "Note this code is not meant to be executed in this project directory but is meant to provide a record of the commands used to format and process the necessary data files from the SynCom assemblies.\n\nFormatting assemblies\n\n\n\nShow/hide code\n# Get the ids of the genome assemblies\nmkdir assemblies\ncd assemblies_orig\nprintf '%s\\n' *.fna | sed 's/.fna//g' &gt; ids.txt\nmv ids.txt ..\ncd ..\n\n\nmkdir: cannot create directory ‘assemblies’: File exists\nbash: line 3: cd: assemblies_orig: No such file or directory\n\n\n\n\nShow/hide code\n# Here we rename all chromosomes so that they have a single name, appending an\n# integer if there are multiple sequences per genome\ncat ids.txt | while read ID; do seqkit replace -p \".*\" -r $ID assemblies_orig/$ID.fna | seqkit rename -n | seqkit replace -p \"\\s.*$\" -r \"\" | seqkit replace -p \"_\" -r \".\" &gt; assemblies/$ID.fna; done\n\n\ncat: ids.txt: No such file or directory\n\n\n\n\nShow/hide code\n# Now we find assemblies with multiple chromosomes for some later manual tweaks.\n# This is needed to have a consistent naming scheme\ngrep -c \"&gt;\" assemblies/* | sed 's/\\:/ /g' | sort -nrk2,2\n\n\ngrep: assemblies/*: No such file or directory\n\n\n\nProkka\n\nRun prokka to call genes on the 122 assemblies and annotate them with a consistent format - see sh/prokka/prokka.sh\n\nEggnoggmapper\n\nRun eggnoggmapper to functionally annotate genes - see sh/eggnoggmapper/eggnoggmapper.sh\n\nFormatting for rRNA filtering (these steps performed on computer cluster)\n\nGet rRNAs from prokka which will be used later in the quality control steps to filter out reads mapping to bacterial rRNAs\ncd prokka\ngrep \"ribosomal RNA\" */*.tsv | sed 's/.tsv:/.ffn\\t/g' | cut -f1,2 | while read FILE RNA; do seqkit grep -n -r -p \"${RNA}\" ${FILE}; done &gt; nanjingSynCom122_rrnas.fasta\nseqkit rmdup -s nanjingSynCom122_rrnas.fasta"
+  },
+  {
+    "objectID": "index.html#preparing-for-read-mapping-and-feature-counting",
+    "href": "index.html#preparing-for-read-mapping-and-feature-counting",
+    "title": "RNAseq ata analysis for the project ‘bacteria-nematode interactions’",
+    "section": "",
+    "text": "Make SAF file from GFF file to be used with featureCounts\n\ncd rnaseq/map_count/saf\ncat ../../../nanjingSynCom122/ids.txt | while read ID; do sed -n '/&gt;/q;p' ../../../nanjingSynCom122/prokka/${ID}/${ID}.gff | grep -v \"^#\" | sed 's/;.*$//g' | sed 's/ID=//g' | bioawk -t '{print $9, $1, $4, $5, $7}' | grep -v \"^note\"; done &gt; nanjingSynCom122_combined.saf\nThe resulting file looks like this\nhead saf/nanjingSynCom122_combined.saf\nGeneID  Chr Start   End Strand\n1aci1_00001 1aci1   178 1365    +\n1aci1_00002 1aci1   1498    2616    +\n1aci1_00003 1aci1   2754    5378    +\n1aci1_00004 1aci1   5603    5920    -\n1aci1_00005 1aci1   6257    6868    -\n1aci1_00006 1aci1   7122    7913    +\n1aci1_00007 1aci1   7967    8389    +\n1aci1_00008 1aci1   8463    8807    -\n1aci1_00009 1aci1   8986    9246    +\nConcatenate all assemblies into single file for mapping with bwa. Create the necessary indexes\ncd rnaseq/map_count/refs\ncat ../../../nanjingSynCom122/prokka/*/*.fna &gt; nanjingSynCom122_combined.fna\nsamtools faidx nanjingSynCom122_combined.fna\nbwa index nanjingSynCom122_combined.fna"
+  },
+  {
+    "objectID": "index.html#quality-control-rna-seq-data",
+    "href": "index.html#quality-control-rna-seq-data",
+    "title": "RNAseq ata analysis for the project ‘bacteria-nematode interactions’",
+    "section": "",
+    "text": "Here we do standard filtering and trimming of reads.Bacterial community total cDNA read pairs are processed using BBDuk (version 39.23 (https://sourceforge.net/projects/bbmap/) to remove contaminants, trim reads that contained adapter sequence, right quality trim reads where quality drops below Q10, and exclude reads with more than 2 Ns. BBMap (version 39.23) was then used map cDNA read pairs to a database of bactieral 16S, 5S and 18S rRNAs from the 122 bacterial species SynCom based on exact matches.\nThe steps to reproduce this are available in sh/qualitycontrol/"
+  },
+  {
+    "objectID": "index.html#map-rna-seq-data",
+    "href": "index.html#map-rna-seq-data",
+    "title": "RNAseq ata analysis for the project ‘bacteria-nematode interactions’",
+    "section": "",
+    "text": "Here we map the quality controlled read pairs to a concatenated reference of the 122 bacterial SynCom genomes using BWA. The resulting BAM files are sorted and then the program featureCounts v2.1.1 is used to count the number of reads mapping to genes in the assemblies.\nThe steps to reproduce this are available in sh/map_count/"
+  },
+  {
+    "objectID": "index.html#process-data-for-differential-expression",
+    "href": "index.html#process-data-for-differential-expression",
+    "title": "RNAseq ata analysis for the project ‘bacteria-nematode interactions’",
+    "section": "",
+    "text": "Load big matrix into R and use gene identifiers to partition into n &lt;= 122 species-specific sub-matrices"
+  },
+  {
+    "objectID": "index.html#compare-samples-via-ordination",
+    "href": "index.html#compare-samples-via-ordination",
+    "title": "RNAseq ata analysis for the project ‘bacteria-nematode interactions’",
+    "section": "",
+    "text": "https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02337-8\n\nCalculate TMM for each species sub-matrix separately.\n\n\nhttps://genomebiology.biomedcentral.com/articles/10.1186/gb-2010-11-3-r25\nhttps://www.biostars.org/p/9475236/\nhttps://www.biostars.org/p/306010/\nhttps://www.biostars.org/p/419018/#419177\nhttps://davetang.github.io/muse/edger.html\n\n\nCombine TMM matrices for all species into a single matrix and use in a clustering analysis like tSNE (reproduces Fig. 3d)\n\n\nFor the comparison of transcript abundance across multiple samples, transcript counts need to be normalized in each organism by individual transcript lengths and total library size. Due to the differences in transcript abundances between the major and minor organisms, counts for each organism should be normalized independently using transcript per million (TPM) calculations [73]. TPM values are calculated by dividing all read counts by the length of each gene in kilobases to obtain a reads per kilobase (RPK) value for each gene [92]. The RPK value for each gene is then divided by the sum of RPK values divided by 1,000,000. While RPKM and FPKM calculations are also used for normalization, the sum of the RPKM and FPKM values differ between samples with differing numbers of reads, which can result in disproportionate comparisons [92]."
+  },
+  {
+    "objectID": "index.html#find-differentially-expressed-genes",
+    "href": "index.html#find-differentially-expressed-genes",
+    "title": "RNAseq ata analysis for the project ‘bacteria-nematode interactions’",
+    "section": "",
+    "text": "Run a separate edgeR analysis for each species sub-matrix\nConcatenate results of significantly differentially expressed genes\nSend to collaborators"
+  },
+  {
+    "objectID": "index.html#availability",
+    "href": "index.html#availability",
+    "title": "RNAseq ata analysis for the project ‘bacteria-nematode interactions’",
+    "section": "",
+    "text": "Data and code in this GitHub repository (https://github.com/GHUSERNAME/REPOSITORYNAME) are provided under GNU AGPL3. The rendered project site is available at https://GHUSERNAME.github.io/REPOSITORYNAME/, which has been produced using Quarto notebooks. The content on the rendered site is released under the CC BY 4.0. This repository hosts all code and data for this project, including the code necessary to fully recreate the rendered webpage.\nAn archived release of the code is available from Zenodo: https://zenodo.org/records/EVENTUAL_ZENODO_RECORD\nRaw sequencing data used in the project is available from NCBI Bioproject [PRJNA00000000](https://www.ncbi.nlm.nih"
+  },
+  {
+    "objectID": "index.html#reproducibility",
+    "href": "index.html#reproducibility",
+    "title": "RNAseq ata analysis for the project ‘bacteria-nematode interactions’",
+    "section": "",
+    "text": "The project uses renv to create a reproducible environment to execute the code in this project. See here for a brief overview on collaboration and reproduction of the entire project. To get up and running from an established repository, you could do:\ninstall.packages(\"renv\")\nrenv::restore()\nTo initiate renv for a new project:\ninstall.packages(\"renv\")\n# initialize\nrenv::init()\n# install some new packages\nrenv::install(\"tidyverse\")\n# record those packages in the lockfile\nrenv::snapshot()"
+  },
+  {
+    "objectID": "R/01_read_format_featureCounts.html",
+    "href": "R/01_read_format_featureCounts.html",
+    "title": "Read and format featureCounts results",
+    "section": "",
+    "text": "Show/hide code\nlibrary(tidyverse)\nlibrary(here)\nlibrary(fs)\nlibrary(edgeR)\n\n\n\n\n\n\n\nShow/hide code\ndata_raw &lt;- here::here(\"_data_raw\", \"featureCounts\")",
+    "crumbs": [
+      "i) Formatting RNAseq counts"
+    ]
+  },
+  {
+    "objectID": "R/01_read_format_featureCounts.html#libraries",
+    "href": "R/01_read_format_featureCounts.html#libraries",
+    "title": "Read and format featureCounts results",
+    "section": "",
+    "text": "Show/hide code\nlibrary(tidyverse)\nlibrary(here)\nlibrary(fs)\nlibrary(edgeR)",
+    "crumbs": [
+      "i) Formatting RNAseq counts"
+    ]
+  },
+  {
+    "objectID": "R/01_read_format_featureCounts.html#global-variables",
+    "href": "R/01_read_format_featureCounts.html#global-variables",
+    "title": "Read and format featureCounts results",
+    "section": "",
+    "text": "Show/hide code\ndata_raw &lt;- here::here(\"_data_raw\", \"featureCounts\")",
+    "crumbs": [
+      "i) Formatting RNAseq counts"
+    ]
+  },
+  {
+    "objectID": "R/01_read_format_featureCounts.html#remove-rrnas",
+    "href": "R/01_read_format_featureCounts.html#remove-rrnas",
+    "title": "Read and format featureCounts results",
+    "section": "3.1 Remove rRNAs",
+    "text": "3.1 Remove rRNAs\nGenerally we don’t care about rRNAs and only mRNAs which code for functions. We will filter out any residual rRNA genes that were not detected in our bioinformatics filtering step.\n\n\nShow/hide code\nrrna &lt;- read_tsv(here::here(\"_data_raw\", \"rrna_nanjingSynCom122.tsv\"),\n                 col_names = c(\"gene\", \"feature\", \"length\", \"a\", \"b\", \"c\", \"description\"))\n\n\nRows: 2260 Columns: 7\n── Column specification ────────────────────────────────────────────────────────\nDelimiter: \"\\t\"\nchr (3): gene, feature, description\ndbl (1): length\nlgl (3): a, b, c\n\nℹ Use `spec()` to retrieve the full column specification for this data.\nℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.\n\n\n\n\nShow/hide code\ncountabs_no_rRNA &lt;- anti_join(countabs, dplyr::select(rrna, gene), by = join_by(gene))",
+    "crumbs": [
+      "i) Formatting RNAseq counts"
+    ]
+  },
+  {
+    "objectID": "R/01_read_format_featureCounts.html#pivot-to-wide-format",
+    "href": "R/01_read_format_featureCounts.html#pivot-to-wide-format",
+    "title": "Read and format featureCounts results",
+    "section": "3.2 Pivot to wide format",
+    "text": "3.2 Pivot to wide format\nKey to do this properly is to perform the normalization for each species separately and not one big dataframe of all species combined. After normalization and differential testing the results are combined. This should help remove effects due to species abundance shifts so that we are focusing mostly on expression shifts.\nNote that ZDCK = SC, ZDCE = SC_N1, ZDP = SC_N2, and ZDD = SC_N3\n\n\nShow/hide code\ncountabs_nested &lt;- countabs_no_rRNA %&gt;% \n  pivot_wider(names_from = \"sample\", values_from = \"count\") %&gt;% \n  # reordering columns to make group specification easier later for DGElist\n  dplyr::relocate(c(ZDCK1, ZDCK2, ZDCK3), .after = length) %&gt;% \n  dplyr::relocate(c(ZDP1, ZDP2, ZDP3), .after = ZDCE3) %&gt;% \n  # creating a strainID variable and nesting by it\n  mutate(strainID=str_remove(chromosome, \"\\\\.\\\\d+$\")) %&gt;% \n  nest(.by = strainID)\n\n\nCreate edgeR DGElist objects for each species while filtering out genes with any cpm &lt; 0.5 and genes with sum across all samples &lt;= 2\n\n\nShow/hide code\nset.seed(23467)\n\ntreatment_grouping &lt;-c(\"SC\", \"SC\", \"SC\", \"SC_N1\", \"SC_N1\", \"SC_N1\", \"SC_N2\", \"SC_N2\", \"SC_N2\", \"SC_N3\", \"SC_N3\", \"SC_N3\")\n\ncountabs_nested_filt &lt;- countabs_nested %&gt;% \n  # create the DGEList object\n  mutate(dgelist = map(data, ~edgeR::DGEList(counts=.x[,7:18], genes=.x[,1:6], \n                       # this grouping puts columns 1-3 (SC1-3) as the intercept in the later GLM\n                       group = treatment_grouping))) %&gt;% \n  # filter out low expressed genes.\n  mutate(keepme = map(dgelist, ~edgeR::filterByExpr(.x))) %&gt;%\n  # subset DGElist to high expression genes\n  mutate(dgelist_filt = map2(dgelist, keepme, ~.x[.y, , keep.lib.sizes=FALSE]))",
+    "crumbs": [
+      "i) Formatting RNAseq counts"
+    ]
+  },
+  {
+    "objectID": "R/01_read_format_featureCounts.html#cpm",
+    "href": "R/01_read_format_featureCounts.html#cpm",
+    "title": "Read and format featureCounts results",
+    "section": "4.1 CPM",
+    "text": "4.1 CPM\nTo get output needed for clustering we will grab cpm values from the TMM normalized dataset\n\n\nShow/hide code\nset.seed(42378)\ncountabs_nested_filt_cpm &lt;- countabs_nested_filt %&gt;% \n  # calculate TMM normalization factors\n  mutate(normfact = map(dgelist_filt, ~edgeR::calcNormFactors(.x))) %&gt;%\n  # get the normalized counts on log2 scale\n  mutate(cpms = map(normfact, ~edgeR::cpm(.x, log=TRUE)))\n\n\nSome formatting to produce gene by sample matrix\n\n\nShow/hide code\ncpm_combined &lt;- countabs_nested_filt_cpm %&gt;% \n  mutate(df = map2(normfact, cpms, ~as.data.frame(cbind(gene=.x$genes$gene, .y)))) %&gt;% \n  dplyr::select(strainID, df) %&gt;% \n  unnest(cols = c(df))\n\n\nAnother way to do this would be to maybe catch the output form the plotMDS function from limma\nNever mind it doesn’t give the loadings which is what we’d need\n\n\nShow/hide code\ncountabs_nested_filt_mds &lt;- countabs_nested_filt_cpm %&gt;% \n  slice_sample(n=10) %&gt;% \n  # get the normalized counts\n  mutate(mds = map(normfact, ~limma::plotMDS(.x, plot = FALSE)))\n\n\nwrite for later\n\n\nShow/hide code\ncpm_combined %&gt;% \n  dplyr::select(-strainID) %&gt;% \n  mutate(across(c(-gene), as.numeric)) %&gt;% \n  write_tsv(here::here(\"data\", \"genes_cpm.tsv.xz\"))",
+    "crumbs": [
+      "i) Formatting RNAseq counts"
+    ]
+  },
+  {
+    "objectID": "R/01_read_format_featureCounts.html#contrasts",
+    "href": "R/01_read_format_featureCounts.html#contrasts",
+    "title": "Read and format featureCounts results",
+    "section": "5.1 Contrasts",
+    "text": "5.1 Contrasts\nSC_N1 vs SC\n\n\nShow/hide code\nset.seed(42378)\n\ncountabs_nested_filt_fit_ctrst01 &lt;- countabs_nested_filt_fit %&gt;% \n  # this contrast compares the SC_N1 treatment to control\n  mutate(SCvSC_N1 = map(fit, ~edgeR::glmQLFTest(.x, contrast = c(-1, 1, 0, 0)))) %&gt;% \n  # this gets all genes with a FDR controlled p.value &lt; 0.05\n  mutate(topdge = map(SCvSC_N1, ~data.frame(edgeR::topTags(.x, n = Inf, p.value = 0.05)))) %&gt;% \n  dplyr::select(strainID, topdge) %&gt;% \n  unnest(cols = c(topdge)) %&gt;% \n  # now filter by excluding genes with abs(logFC) &lt; 2\n  filter(abs(logFC) &gt; 2) %&gt;% \n  mutate(comparison = \"SCN1_versus_SC\")\n\n\nSC_N2 vs SC\n\n\nShow/hide code\nset.seed(42378)\n\ncountabs_nested_filt_fit_ctrst02 &lt;- countabs_nested_filt_fit %&gt;% \n  # this contrast compares the SC_N1 treatment to control\n  mutate(SCvSC_N1 = map(fit, ~edgeR::glmQLFTest(.x, contrast = c(-1, 0, 1, 0)))) %&gt;% \n  # this gets all genes with a FDR controlled p.value &lt; 0.05\n  mutate(topdge = map(SCvSC_N1, ~data.frame(edgeR::topTags(.x, n = Inf, p.value = 0.05)))) %&gt;% \n  dplyr::select(strainID, topdge) %&gt;% \n  unnest(cols = c(topdge)) %&gt;%\n  # now filter by excluding genes with abs(logFC) &lt; 2\n  filter(abs(logFC) &gt; 2) %&gt;% \n  mutate(comparison = \"SCN2_versus_SC\")\n\n\nSC_N3 vs SC\n\n\nShow/hide code\nset.seed(42378)\n\ncountabs_nested_filt_fit_ctrst03 &lt;- countabs_nested_filt_fit %&gt;% \n  # this contrast compares the SC_N1 treatment to control\n  mutate(SCvSC_N1 = map(fit, ~edgeR::glmQLFTest(.x, contrast = c(-1, 0, 0, 1)))) %&gt;% \n  # this gets all genes with a FDR controlled p.value &lt; 0.05\n  mutate(topdge = map(SCvSC_N1, ~data.frame(edgeR::topTags(.x, n = Inf, p.value = 0.05)))) %&gt;% \n  dplyr::select(strainID, topdge) %&gt;% \n  unnest(cols = c(topdge)) %&gt;%\n  # now filter by excluding genes with abs(logFC) &lt; 2\n  filter(abs(logFC) &gt; 2) %&gt;% \n  mutate(comparison = \"SCN3_versus_SC\")\n\n\naverage of all worm treatments vs SC\n\n\nShow/hide code\nset.seed(42378)\n\ncountabs_nested_filt_fit_ctrst04 &lt;- countabs_nested_filt_fit %&gt;% \n  # this contrast compares the SC_N1 treatment to control\n  mutate(SCvSC_N1 = map(fit, ~edgeR::glmQLFTest(.x, contrast = c(-1, 1/3, 1/3, 1/3)))) %&gt;% \n  # this gets all genes with a FDR controlled p.value &lt; 0.05\n  mutate(topdge = map(SCvSC_N1, ~data.frame(edgeR::topTags(.x, n = Inf, p.value = 0.05)))) %&gt;% \n  dplyr::select(strainID, topdge) %&gt;% \n  unnest(cols = c(topdge)) %&gt;% \n  # now filter by excluding genes with abs(logFC) &lt; 2\n  filter(abs(logFC) &gt; 2) %&gt;% \n  mutate(comparison = \"allN_versus_SC\")",
+    "crumbs": [
+      "i) Formatting RNAseq counts"
+    ]
+  },
+  {
+    "objectID": "R/01_read_format_featureCounts.html#combine-dge-and-export",
+    "href": "R/01_read_format_featureCounts.html#combine-dge-and-export",
+    "title": "Read and format featureCounts results",
+    "section": "5.2 Combine DGE and export",
+    "text": "5.2 Combine DGE and export\n\n\nShow/hide code\nbind_rows(\n  countabs_nested_filt_fit_ctrst01,\n  countabs_nested_filt_fit_ctrst02,\n  countabs_nested_filt_fit_ctrst03,\n  countabs_nested_filt_fit_ctrst04\n) %&gt;% \n  write_tsv(here::here(\"data\", \"dgelist.tsv.xz\"))",
+    "crumbs": [
+      "i) Formatting RNAseq counts"
+    ]
+  },
+  {
+    "objectID": "R/02_dge_function.html",
+    "href": "R/02_dge_function.html",
+    "title": "Functional analysis of differentially expressed genes",
+    "section": "",
+    "text": "Show/hide code\nlibrary(tidyverse)\nlibrary(here)\nlibrary(fs)\nlibrary(ggVennDiagram)\nlibrary(vegan)",
+    "crumbs": [
+      "ii) Analysis and plotting"
+    ]
+  },
+  {
+    "objectID": "R/02_dge_function.html#libraries",
+    "href": "R/02_dge_function.html#libraries",
+    "title": "Functional analysis of differentially expressed genes",
+    "section": "",
+    "text": "Show/hide code\nlibrary(tidyverse)\nlibrary(here)\nlibrary(fs)\nlibrary(ggVennDiagram)\nlibrary(vegan)",
+    "crumbs": [
+      "ii) Analysis and plotting"
+    ]
+  }
+]

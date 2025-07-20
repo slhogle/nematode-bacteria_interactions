@@ -1,0 +1,270 @@
+---
+title: "Read and format featureCounts results"
+author: "Shane Hogle"
+date: today
+link-citations: true
+abstract: ""
+---
+
+# Setup
+
+## Libraries
+
+```{r}
+#| output: false
+#| warning: false
+#| error: false
+library(tidyverse)
+library(here)
+library(fs)
+library(edgeR)
+```
+
+## Global variables
+
+```{r}
+#| output: false
+#| warning: false
+#| error: false
+data_raw <- here::here("_data_raw", "featureCounts")
+```
+
+# Read data
+
+There are three samples (ZDB\[1-3\]) from a higher trophic level worm *Pristionchus quartusdecimus* which were sequenced but not included in this paper/analysis. We will not read these files for our analysis
+
+```{r}
+samppaths <- fs::dir_ls(data_raw, regexp = "*.tsv$")
+# here we exclude the ZDB samples 
+samppaths <- samppaths[str_detect(samppaths, "ZDB\\d+.tsv$", negate=TRUE)]
+sampnames <- fs::path_split(samppaths) %>% 
+  purrr::map_chr(dplyr::last) %>% 
+  str_remove(".tsv")
+```
+
+Vectorized read in the `featureCounts` files
+
+```{r}
+countabs <- samppaths %>% 
+  purrr::set_names(sampnames) %>% 
+  purrr::map(
+  readr::read_tsv,
+  skip = 2,
+  col_names = c("gene","chromosome", "start", "end", "strand", "length", "count"),
+  show_col_types = FALSE) %>% 
+  purrr::list_rbind(names_to = "sample")
+```
+
+# Formatting
+
+## Remove rRNAs
+
+Generally we don't care about rRNAs and only mRNAs which code for functions. We will filter out any residual rRNA genes that were not detected in our bioinformatics filtering step.
+
+```{r}
+rrna <- read_tsv(here::here("_data_raw", "rrna_nanjingSynCom122.tsv"),
+                 col_names = c("gene", "feature", "length", "a", "b", "c", "description"))
+```
+```{r}
+countabs_no_rRNA <- anti_join(countabs, dplyr::select(rrna, gene), by = join_by(gene))
+```
+
+## Pivot to wide format
+
+Key to do this properly is to perform the normalization for each species separately and not one big dataframe of all species combined. After normalization and differential testing the results are combined. This should help remove effects due to species abundance shifts so that we are focusing mostly on expression shifts.
+
+Note that ZDCK = SC, ZDCE = SC_N1, ZDP = SC_N2, and ZDD = SC_N3
+
+```{r}
+countabs_nested <- countabs_no_rRNA %>% 
+  pivot_wider(names_from = "sample", values_from = "count") %>% 
+  # reordering columns to make group specification easier later for DGElist
+  dplyr::relocate(c(ZDCK1, ZDCK2, ZDCK3), .after = length) %>% 
+  dplyr::relocate(c(ZDP1, ZDP2, ZDP3), .after = ZDCE3) %>% 
+  # creating a strainID variable and nesting by it
+  mutate(strainID=str_remove(chromosome, "\\.\\d+$")) %>% 
+  nest(.by = strainID)
+```
+
+Create edgeR DGElist objects for each species while filtering out genes with any cpm \< 0.5 and genes with sum across all samples \<= 2
+
+```{r}
+set.seed(23467)
+
+treatment_grouping <-c("SC", "SC", "SC", "SC_N1", "SC_N1", "SC_N1", "SC_N2", "SC_N2", "SC_N2", "SC_N3", "SC_N3", "SC_N3")
+
+countabs_nested_filt <- countabs_nested %>% 
+  # create the DGEList object
+  mutate(dgelist = map(data, ~edgeR::DGEList(counts=.x[,7:18], genes=.x[,1:6], 
+                       # this grouping puts columns 1-3 (SC1-3) as the intercept in the later GLM
+                       group = treatment_grouping))) %>% 
+  # filter out low expressed genes.
+  mutate(keepme = map(dgelist, ~edgeR::filterByExpr(.x))) %>%
+  # subset DGElist to high expression genes
+  mutate(dgelist_filt = map2(dgelist, keepme, ~.x[.y, , keep.lib.sizes=FALSE]))
+```
+
+# Sample clustering
+
+In section 2.17 of the edgeR manual it states:
+
+> The function plotMDS draws a multi-dimensional scaling plot of the RNA samples in which distances correspond to leading log-fold-changes between each pair of RNA samples. The leading log-fold-change is the average (root-mean-square) of the largest absolute log-fold changes between each pair of samples. This plot can be viewed as a type of unsupervised clustering. The function also provides the option of computing distances in terms of BCV between each pair of samples instead of leading logFC.
+>
+> Inputing RNA-seq counts to clustering or heatmap routines designed for microarray data is not straight-forward, and the best way to do this is still a matter of research. To draw a heatmap of individual RNA-seq samples, we suggest using moderated log-counts-per-million. This can be calculated by cpm with positive values for prior.count, for example `logcpm <- cpm(y, log=TRUE)` where y is the normalized DGEList object. This produces a matrix of log2 counts-per-million (logCPM), with undefined values avoided and the poorly defined log-fold-changes for low counts shrunk towards zero. Larger values for prior.count produce stronger moderation of the values for low counts and more shrinkage of the corresponding log-fold-changes. The logCPM values can optionally be converted to RPKM or FPKM by subtracting log2 of gene length, see rpkm().
+
+## CPM
+
+To get output needed for clustering we will grab `cpm` values from the TMM normalized dataset
+
+```{r}
+set.seed(42378)
+countabs_nested_filt_cpm <- countabs_nested_filt %>% 
+  # calculate TMM normalization factors
+  mutate(normfact = map(dgelist_filt, ~edgeR::calcNormFactors(.x))) %>%
+  # get the normalized counts on log2 scale
+  mutate(cpms = map(normfact, ~edgeR::cpm(.x, log=TRUE)))
+```
+
+Some formatting to produce gene by sample matrix
+
+```{r}
+cpm_combined <- countabs_nested_filt_cpm %>% 
+  mutate(df = map2(normfact, cpms, ~as.data.frame(cbind(gene=.x$genes$gene, .y)))) %>% 
+  dplyr::select(strainID, df) %>% 
+  unnest(cols = c(df))
+```
+
+~~Another way to do this would be to maybe catch the output form the plotMDS function from `limma`~~
+
+Never mind it doesn't give the loadings which is what we'd need
+
+```{r}
+#| include: true
+#| eval: false
+countabs_nested_filt_mds <- countabs_nested_filt_cpm %>% 
+  slice_sample(n=10) %>% 
+  # get the normalized counts
+  mutate(mds = map(normfact, ~limma::plotMDS(.x, plot = FALSE)))
+```
+
+write for later
+
+```{r}
+cpm_combined %>% 
+  dplyr::select(-strainID) %>% 
+  mutate(across(c(-gene), as.numeric)) %>% 
+  write_tsv(here::here("data", "genes_cpm.tsv.xz"))
+```
+
+# Differential Gene expression
+
+see page 34 of edgeR manual for example of specifying model matrix
+
+```{r}
+#this generates a design matrix where treatments correspond to the different worms (or control)
+samps <- countabs_nested_filt[[5]][[1]]$samples
+design <- model.matrix(~0+treatment_grouping, data=samps)
+colnames(design) <- levels(samps$group)
+design
+```
+
+```{r}
+set.seed(42378)
+
+countabs_nested_filt_fit <- countabs_nested %>% 
+  # create the DGEList object
+  mutate(dgelist = map(data, ~edgeR::DGEList(counts=.x[,7:18], genes=.x[,1:6], 
+                       # this grouping puts columns 1-3 (SC1-3) as the intercept in the later GLM
+                       group = treatment_grouping))) %>% 
+  # filter out low expressed genes.
+  mutate(keepme = map(dgelist, ~edgeR::filterByExpr(.x))) %>%
+  # subset DGElist to high enough expressed genes
+  mutate(dgelist_filt = map2(dgelist, keepme, ~.x[.y, , keep.lib.sizes=FALSE])) %>% 
+  # calculate TMM normalization factors
+  mutate(normfact = map(dgelist_filt, ~edgeR::normLibSizes(.x))) %>% 
+  # fit glms with design specified above
+  mutate(fit = map(dgelist_filt, ~edgeR::glmQLFit(.x, design)))
+```
+
+## Contrasts
+
+SC_N1 vs SC
+
+```{r}
+set.seed(42378)
+
+countabs_nested_filt_fit_ctrst01 <- countabs_nested_filt_fit %>% 
+  # this contrast compares the SC_N1 treatment to control
+  mutate(SCvSC_N1 = map(fit, ~edgeR::glmQLFTest(.x, contrast = c(-1, 1, 0, 0)))) %>% 
+  # this gets all genes with a FDR controlled p.value < 0.05
+  mutate(topdge = map(SCvSC_N1, ~data.frame(edgeR::topTags(.x, n = Inf, p.value	= 0.05)))) %>% 
+  dplyr::select(strainID, topdge) %>% 
+  unnest(cols = c(topdge)) %>% 
+  # now filter by excluding genes with abs(logFC) < 2
+  filter(abs(logFC) > 2) %>% 
+  mutate(comparison = "SCN1_versus_SC")
+```
+
+SC_N2 vs SC
+
+```{r}
+set.seed(42378)
+
+countabs_nested_filt_fit_ctrst02 <- countabs_nested_filt_fit %>% 
+  # this contrast compares the SC_N1 treatment to control
+  mutate(SCvSC_N1 = map(fit, ~edgeR::glmQLFTest(.x, contrast = c(-1, 0, 1, 0)))) %>% 
+  # this gets all genes with a FDR controlled p.value < 0.05
+  mutate(topdge = map(SCvSC_N1, ~data.frame(edgeR::topTags(.x, n = Inf, p.value	= 0.05)))) %>% 
+  dplyr::select(strainID, topdge) %>% 
+  unnest(cols = c(topdge)) %>%
+  # now filter by excluding genes with abs(logFC) < 2
+  filter(abs(logFC) > 2) %>% 
+  mutate(comparison = "SCN2_versus_SC")
+```
+
+SC_N3 vs SC
+
+```{r}
+set.seed(42378)
+
+countabs_nested_filt_fit_ctrst03 <- countabs_nested_filt_fit %>% 
+  # this contrast compares the SC_N1 treatment to control
+  mutate(SCvSC_N1 = map(fit, ~edgeR::glmQLFTest(.x, contrast = c(-1, 0, 0, 1)))) %>% 
+  # this gets all genes with a FDR controlled p.value < 0.05
+  mutate(topdge = map(SCvSC_N1, ~data.frame(edgeR::topTags(.x, n = Inf, p.value	= 0.05)))) %>% 
+  dplyr::select(strainID, topdge) %>% 
+  unnest(cols = c(topdge)) %>%
+  # now filter by excluding genes with abs(logFC) < 2
+  filter(abs(logFC) > 2) %>% 
+  mutate(comparison = "SCN3_versus_SC")
+```
+
+average of all worm treatments vs SC
+
+```{r}
+set.seed(42378)
+
+countabs_nested_filt_fit_ctrst04 <- countabs_nested_filt_fit %>% 
+  # this contrast compares the SC_N1 treatment to control
+  mutate(SCvSC_N1 = map(fit, ~edgeR::glmQLFTest(.x, contrast = c(-1, 1/3, 1/3, 1/3)))) %>% 
+  # this gets all genes with a FDR controlled p.value < 0.05
+  mutate(topdge = map(SCvSC_N1, ~data.frame(edgeR::topTags(.x, n = Inf, p.value	= 0.05)))) %>% 
+  dplyr::select(strainID, topdge) %>% 
+  unnest(cols = c(topdge)) %>% 
+  # now filter by excluding genes with abs(logFC) < 2
+  filter(abs(logFC) > 2) %>% 
+  mutate(comparison = "allN_versus_SC")
+```
+
+## Combine DGE and export
+
+```{r}
+bind_rows(
+  countabs_nested_filt_fit_ctrst01,
+  countabs_nested_filt_fit_ctrst02,
+  countabs_nested_filt_fit_ctrst03,
+  countabs_nested_filt_fit_ctrst04
+) %>% 
+  write_tsv(here::here("data", "dgelist.tsv.xz"))
+```
+
